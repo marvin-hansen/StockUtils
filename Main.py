@@ -99,9 +99,11 @@ def main():
             data_all = load_data()
 
             print(data_all.tail(3))
-            # print(df_all.tail(3))
 
-            proc = PROCS.PROCS.ADD_EMA
+            # Set which proc to run
+            proc = PROCS.PROCS.ADD_BBAND
+
+
 
             if proc is PROCS.PROCS.ADD_PRV_VAL:
                 print("Apply proc: " + proc.name)
@@ -116,9 +118,23 @@ def main():
 
             if proc is PROCS.PROCS.ADD_BBAND:
                 print("Apply proc: " + proc.name)
+                print("Test normal bands")
+                data_bb = p.proc_add_bband(df=data_all, stock=stock,
+                                           cont_vars=cont_vars, add_diff_to_bb=False)
+                p.inspect_data(data_bb, cont_vars, cat_vars)
+
+                print("Test bands with diff to close price ")
+                data_bb = None
                 data_bb = p.proc_add_bband(df=data_all, stock=stock,
                                            cont_vars=cont_vars, add_diff_to_bb=True)
                 p.inspect_data(data_bb, cont_vars, cat_vars)
+
+                print("Test bands with diff to all four OHLC prices ")
+                data_bb = None
+                data_bb = p.proc_add_bband(df=data_all, stock=stock,
+                                           cont_vars=cont_vars, add_diff_to_bb=False, add_ohlc_diff=True)
+                p.inspect_data(data_bb, cont_vars, cat_vars)
+
 
             if proc is PROCS.PROCS.ADD_SMA:
                 print("Apply proc: " + proc.name)

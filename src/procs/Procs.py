@@ -67,7 +67,8 @@ def proc_add_datepart(df, cont_vars, cat_vars, date_col_name: str = "Date"):
 def proc_add_bband(df, stock: Ticker, cont_vars,
                    merge_on: str = "Date",
                    add_diff_to_bb: bool = False,
-                   diff_col: str = "Close"):
+                   diff_col: str = "Close",
+                   add_ohlc_diff: bool = False):
     """
     Adds Bollinger Band to the dataframe for the given stock & update meta-data accordingly.
     Add the following columns:
@@ -101,7 +102,6 @@ def proc_add_bband(df, stock: Ticker, cont_vars,
     convert_date(bb_data, "Date")
 
     print(bb_data.info())
-
     # update meta-data
     cont_vars = __update_meta_data(cont_vars, bb_data.columns.values.tolist())
 
@@ -131,13 +131,33 @@ def proc_add_bband(df, stock: Ticker, cont_vars,
         cont_vars.append('Close_BB_LOW_Diff')
         return df_merge
 
+    elif (add_ohlc_diff):
+        # Merge
+        df_merge = pd.merge(df, bb_data, on=merge_on)
+        ohcl = ["Open", "High", "Low", "Close"]
+        # get all Bollinger Band column names
+        band_columns = bb_data.columns.values.tolist()
+        band_columns.remove("Date")
+
+        for b_name in band_columns:
+            col_name = b_name
+            for c_name in ohcl:
+                # Calculate distance between specified price column and the moving average
+                df_merge[c_name + "_" + col_name + "_Diff"] = df_merge[c_name] - df_merge[col_name]
+                # update meta data
+                cont_vars.append(c_name + "_" + col_name + "_Diff")
+
+        return df_merge
+
     else:
         return pd.merge(df, bb_data, on=merge_on)
 
 
-def proc_add_wma20_wma_60_diff(df, cont_vars, stock: Ticker):
+def proc_add_wma20_wma_60_diff(df, cont_vars, stock: Ticker, add_diff: bool = False, add_ohlc_diff: bool = False):
     """
 
+    :param add_ohlc_diff:
+    :param add_diff:
     :param df:
     :param cont_vars:
     :param stock:
@@ -150,10 +170,10 @@ def proc_add_wma20_wma_60_diff(df, cont_vars, stock: Ticker):
     columns = df.columns.values.tolist()
 
     if wma20 not in columns:
-        df = proc_add_wma20(df=df, cont_vars=cont_vars, stock=stock, add_diff=True)
+        df = proc_add_wma20(df=df, cont_vars=cont_vars, stock=stock, add_diff=add_diff, add_ohlc_diff=add_ohlc_diff)
 
     if wma60 not in columns:
-        df = proc_add_wma60(df=df, cont_vars=cont_vars, stock=stock, add_diff=True)
+        df = proc_add_wma60(df=df, cont_vars=cont_vars, stock=stock, add_diff=add_diff, add_ohlc_diff=add_ohlc_diff)
 
     # calculate difference between WMA 20 and 60
     df[res_name] = df[wma20] - df[wma60]
@@ -163,7 +183,8 @@ def proc_add_wma20_wma_60_diff(df, cont_vars, stock: Ticker):
     return df
 
 
-def proc_add_wma60(df, cont_vars, stock: Ticker, add_diff: bool = False, diff_col: str = "Close"):
+def proc_add_wma60(df, cont_vars, stock: Ticker, add_diff: bool = False, diff_col: str = "Close",
+                   add_ohlc_diff: bool = False):
     """
     Returns dataframe with the 60 day weighted moving average
 
@@ -175,10 +196,12 @@ def proc_add_wma60(df, cont_vars, stock: Ticker, add_diff: bool = False, diff_co
     :return:
     """
     return proc_add_mov_avg(df=df, cont_vars=cont_vars, stock=stock,
-                            mov_avg='wma', time_period=60, add_diff=add_diff, diff_col=diff_col)
+                            mov_avg='wma', time_period=60, add_diff=add_diff, diff_col=diff_col,
+                            add_ohlc_diff=add_ohlc_diff)
 
 
-def proc_add_wma20(df, cont_vars, stock: Ticker, add_diff: bool = False, diff_col: str = "Close"):
+def proc_add_wma20(df, cont_vars, stock: Ticker, add_diff: bool = False, diff_col: str = "Close",
+                   add_ohlc_diff: bool = False):
     """
     Returns dataframe with the 20 day weighted moving average
 
@@ -190,10 +213,11 @@ def proc_add_wma20(df, cont_vars, stock: Ticker, add_diff: bool = False, diff_co
     :return:
     """
     return proc_add_mov_avg(df=df, cont_vars=cont_vars, stock=stock,
-                            mov_avg='wma', time_period=20, add_diff=add_diff, diff_col=diff_col)
+                            mov_avg='wma', time_period=20, add_diff=add_diff, diff_col=diff_col,
+                            add_ohlc_diff=add_ohlc_diff)
 
 
-def proc_add_ema10_ema_30_diff(df, cont_vars, stock: Ticker, add_ohlc_diff: bool = False):
+def proc_add_ema10_ema_30_diff(df, cont_vars, stock: Ticker, add_diff: bool = False, add_ohlc_diff: bool = False):
     """
 
     :param df:
@@ -207,10 +231,10 @@ def proc_add_ema10_ema_30_diff(df, cont_vars, stock: Ticker, add_ohlc_diff: bool
     columns = df.columns.values.tolist()
 
     if ema10 not in columns:
-        df = proc_add_ema10(df=df, cont_vars=cont_vars, stock=stock, add_ohlc_diff=add_ohlc_diff)
+        df = proc_add_ema10(df=df, cont_vars=cont_vars, stock=stock, add_diff=add_diff, add_ohlc_diff=add_ohlc_diff)
 
     if ema30 not in columns:
-        df = proc_add_ema30(df=df, cont_vars=cont_vars, stock=stock, add_ohlc_diff=add_ohlc_diff)
+        df = proc_add_ema30(df=df, cont_vars=cont_vars, stock=stock, add_diff=add_diff, add_ohlc_diff=add_ohlc_diff)
 
     # calculate difference between EMA  10 and 30
     df[res_name] = df[ema10] - df[ema30]
@@ -220,7 +244,8 @@ def proc_add_ema10_ema_30_diff(df, cont_vars, stock: Ticker, add_ohlc_diff: bool
     return df
 
 
-def proc_add_ema30(df, cont_vars, stock: Ticker, add_diff: bool = False, diff_col: str = "Close"):
+def proc_add_ema30(df, cont_vars, stock: Ticker, add_diff: bool = False, diff_col: str = "Close",
+                   add_ohlc_diff: bool = False):
     """
     Returns dataframe with the 30 day expontial moving average
 
@@ -232,10 +257,12 @@ def proc_add_ema30(df, cont_vars, stock: Ticker, add_diff: bool = False, diff_co
     :return:
     """
     return proc_add_mov_avg(df=df, cont_vars=cont_vars, stock=stock,
-                            mov_avg='ema', time_period=30, add_diff=add_diff, diff_col=diff_col)
+                            mov_avg='ema', time_period=30, add_diff=add_diff, diff_col=diff_col,
+                            add_ohlc_diff=add_ohlc_diff)
 
 
-def proc_add_ema10(df, cont_vars, stock: Ticker, add_diff: bool = False, diff_col: str = "Close"):
+def proc_add_ema10(df, cont_vars, stock: Ticker, add_diff: bool = False, diff_col: str = "Close",
+                   add_ohlc_diff: bool = False):
     """
     Returns dataframe with the 10 day expontial moving average
 
@@ -247,7 +274,8 @@ def proc_add_ema10(df, cont_vars, stock: Ticker, add_diff: bool = False, diff_co
     :return:
     """
     return proc_add_mov_avg(df=df, cont_vars=cont_vars, stock=stock,
-                            mov_avg='ema', time_period=10, add_diff=add_diff, diff_col=diff_col)
+                            mov_avg='ema', time_period=10, add_diff=add_diff, diff_col=diff_col,
+                            add_ohlc_diff=add_ohlc_diff)
 
 
 def proc_add_sma20_sma_200_diff(df, cont_vars, stock: Ticker, add_ohlc_diff: bool = False):

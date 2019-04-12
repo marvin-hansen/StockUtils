@@ -12,3 +12,4 @@ class PROCS(Enum):
     WMA = 6
     OHLC_AVG = 7
     MOM = 8
+    OBV = 9

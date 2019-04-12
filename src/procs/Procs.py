@@ -66,6 +66,16 @@ def proc_add_percent_change(df, column_name, cont_vars):
 
 
 def proc_add_mom(df, cont_vars, stock: Ticker, change: bool = False):
+    """
+    Adds momentum to the given pandas frame.
+    When change = True, the percentge change in momentum will be added too
+
+    :param df: pandas data frame
+    :param cont_vars: mete data
+    :param stock: stock ticker
+    :param change: bool - adds percentage change. False by default
+    :return: pandas data frame  with momentum data, merged over Date
+    """
     mom_data = t.get_cached_tech_indicator(indicator=TECHIND.TECHIND.MOM, stock=stock)
     mom_data = __rename_column(mom_data, "date", 'Date')
     convert_date(mom_data, "Date")

@@ -103,7 +103,7 @@ def main():
             data_all = load_data()
 
             # Set which proc to run
-            proc = PROCS.PROCS.MOM
+            proc = PROCS.PROCS.OBV
 
             # Run selected procs...
             if proc is PROCS.PROCS.PRV_VAL:
@@ -119,6 +119,14 @@ def main():
 
                 p.proc_add_percent_change(df=data_all, column_name="Close", cont_vars=cont_vars)
                 p.inspect_data(data_all, cont_vars, cat_vars)
+
+            if proc is PROCS.PROCS.OBV:
+                print("Apply proc: " + proc.name)
+                print("Test normal OBV ")
+                data_obv = None
+                cont_vars = init_cont_vars()
+
+                p.inspect_data(data_mom, cont_vars, cat_vars)
 
             if proc is PROCS.PROCS.MOM:
                 print("Apply proc: " + proc.name)

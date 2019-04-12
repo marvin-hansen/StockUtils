@@ -11,6 +11,7 @@ def proc_fill_nan(df):
     """ replaces NaN with zeros  """
     return df.fillna(0)
 
+
 def proc_close_only(df, cont_vars):
     """
     Proc that removes the Open, High, Low, and Volume column from a standard OHLCV dataset.
@@ -257,7 +258,6 @@ def proc_add_bband(df, cont_vars, stock: Ticker,
     # Date needs to be converted to datetime for the table merge below.
     convert_date(bb_data, "Date")
 
-    print(bb_data.info())
     # update meta-data
     cont_vars = __update_meta_data(cont_vars, bb_data.columns.values.tolist())
 
@@ -352,6 +352,36 @@ def proc_add_macd(df, cont_vars, stock: Ticker):
     return df_merge
 
 
+def proc_add_wma5_wma_20_diff(df, cont_vars, stock: Ticker, add_diff: bool = False, add_ohlc_diff: bool = False):
+    """
+
+    :param df:
+    :param cont_vars:
+    :param stock:
+    :param add_diff:
+    :param add_ohlc_diff:
+    :return:
+    """
+    wma5: str = "WMA_5"
+    wma20: str = "WMA_20"
+    res_name: str = "WMA_5_EMA_20_Diff"
+    columns = df.columns.values.tolist()
+
+    if wma5 not in columns:
+        df = proc_add_wma5(df=df, cont_vars=cont_vars, stock=stock, add_diff=add_diff, add_ohlc_diff=add_ohlc_diff)
+
+    if wma20 not in columns:
+        df = proc_add_wma20(df=df, cont_vars=cont_vars, stock=stock, add_diff=add_diff, add_ohlc_diff=add_ohlc_diff)
+
+    # calculate difference between WMA 20 and 60
+    df[res_name] = df[wma5] - df[wma20]
+    # update meta data
+    cont_vars.append(res_name)
+
+    return df
+
+
+
 def proc_add_wma20_wma_60_diff(df, cont_vars, stock: Ticker, add_diff: bool = False, add_ohlc_diff: bool = False):
     """
 
@@ -397,6 +427,24 @@ def proc_add_wma60(df, cont_vars, stock: Ticker, add_diff: bool = False, diff_co
     """
     return proc_add_mov_avg(df=df, cont_vars=cont_vars, stock=stock,
                             mov_avg='wma', time_period=60, add_diff=add_diff, diff_col=diff_col,
+                            add_ohlc_diff=add_ohlc_diff)
+
+
+def proc_add_wma5(df, cont_vars, stock: Ticker, add_diff: bool = False, diff_col: str = "Close",
+                  add_ohlc_diff: bool = False):
+    """
+    Returns dataframe with the 5 day weighted moving average
+
+    :param add_ohlc_diff:
+    :param df: pandas data frame
+    :param cont_vars: mete data
+    :param stock: stock
+    :param add_diff:
+    :param diff_col:
+    :return:
+    """
+    return proc_add_mov_avg(df=df, cont_vars=cont_vars, stock=stock,
+                            mov_avg='wma', time_period=5, add_diff=add_diff, diff_col=diff_col,
                             add_ohlc_diff=add_ohlc_diff)
 
 

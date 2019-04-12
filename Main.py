@@ -68,7 +68,7 @@ def main():
             # set stock
             stock = Ticker.Ticker.AMZN
             # Set which proc to run
-            proc = PROCS.PROCS.SMA
+            proc = PROCS.PROCS.WMA
 
             def load_data():
                 all = True
@@ -198,7 +198,7 @@ def main():
                 data_ohlc = p.proc_add_ohlc_avg(data_all, cont_vars)
                 p.inspect_data(data_ohlc, cont_vars, cat_vars)
 
-                print("Test normal OHLC average with diff to close price")
+                print("Test OHLC average with diff to close price")
                 data_ohlc = None
                 cont_vars = init_cont_vars()
 
@@ -256,7 +256,8 @@ def main():
                 # data_ema = p.proc_add_ema10(df=data_all, cont_vars=cont_vars, stock=stock, add_diff=True)
                 # data_ema = p.proc_add_ema30(df=data_all, cont_vars=cont_vars, stock=stock, add_diff=True)
 
-                data_ema = p.proc_add_ema10_ema_30_diff(df=data_all, cont_vars=cont_vars, stock=stock)
+                data_ema = p.proc_add_ema10_ema_30_diff(df=data_all, cont_vars=cont_vars, stock=stock,
+                                                        add_ohlc_diff=True)
 
                 p.inspect_data(data_ema, cont_vars, cat_vars)
 
@@ -273,7 +274,12 @@ def main():
                 cont_vars = init_cont_vars()
                 data_wma = p.proc_add_wma20_wma_60_diff(df=data_all, cont_vars=cont_vars, stock=stock,
                                                         add_ohlc_diff=True)
+                p.inspect_data(data_wma, cont_vars, cat_vars)
 
+                data_wma = None
+                cont_vars = init_cont_vars()
+                data_wma = p.proc_add_wma5_wma_20_diff(df=data_all, cont_vars=cont_vars, stock=stock,
+                                                       add_ohlc_diff=True)
                 p.inspect_data(data_wma, cont_vars, cat_vars)
 
         if net:

@@ -68,7 +68,7 @@ def main():
             # set stock
             stock = Ticker.Ticker.AMZN
             # Set which proc to run
-            proc = PROCS.PROCS.WMA
+            proc = PROCS.PROCS.SMA
 
             def load_data():
                 all = True
@@ -250,12 +250,13 @@ def main():
 
             if proc is PROCS.PROCS.EMA:
                 print("Apply proc: " + proc.name)
-
+                print("Test normal EMA")
+                data_ema = None
                 cont_vars = init_cont_vars()
                 # data_ema = p.proc_add_ema10(df=data_all, cont_vars=cont_vars, stock=stock, add_diff=True)
-                data_ema = p.proc_add_ema30(df=data_all, cont_vars=cont_vars, stock=stock, add_diff=True)
+                # data_ema = p.proc_add_ema30(df=data_all, cont_vars=cont_vars, stock=stock, add_diff=True)
 
-                #data_ema = p.proc_add_ema10_ema_30_diff(df=data_all, cont_vars=cont_vars, stock=stock)
+                data_ema = p.proc_add_ema10_ema_30_diff(df=data_all, cont_vars=cont_vars, stock=stock)
 
                 p.inspect_data(data_ema, cont_vars, cat_vars)
 

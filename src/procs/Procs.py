@@ -7,6 +7,10 @@ from src.utils import TechInd as t
 DBG = False
 
 
+def proc_fill_nan(df):
+    """ replaces NaN with zeros  """
+    return df.fillna(0)
+
 def proc_close_only(df, cont_vars):
     """
     Proc that removes the Open, High, Low, and Volume column from a standard OHLCV dataset.
@@ -63,6 +67,8 @@ def proc_add_percent_change(df, column_name, cont_vars):
     df.fillna(0)
     cont_vars.append(column_name + '-delta')
     cont_vars.append(column_name + "-pct-chng")
+
+    return df
 
 
 def proc_add_adx(df, cont_vars, stock: Ticker, change: bool = False):
@@ -347,6 +353,7 @@ def proc_add_macd(df, cont_vars, stock: Ticker):
 
     return df_merge
 
+
 def proc_add_wma20_wma_60_diff(df, cont_vars, stock: Ticker, add_diff: bool = False, add_ohlc_diff: bool = False):
     """
 
@@ -572,7 +579,15 @@ def proc_add_mov_avg(df, cont_vars,
     # Rename MA column
     ma_data = __rename_column(ma_data, mov_avg.upper(), col_name)
     # update meta-data
-    cont_vars = __update_meta_data(cont_vars, ma_data.columns.values.tolist())
+    cont_vars.append(col_name)
+
+    # capture percent change
+    chg_name = col_name + "_CHANGE"
+    ma_data[chg_name] = ma_data[col_name].pct_change()
+    # update meta data
+    cont_vars.append(chg_name)
+    # replaces NaN with 0
+    ma_data.fillna(0)
 
     if (add_diff):
         # Merge

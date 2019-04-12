@@ -85,6 +85,7 @@ def proc_add_bband(df, stock: Ticker, cont_vars,
     * 'Close_BB_LOW_Diff'
 
 
+    :param add_ohlc_diff:
     :param df: pandas dataframe
     :param stock: stock ticker
     :param cont_vars: continous mete data
@@ -188,6 +189,7 @@ def proc_add_wma60(df, cont_vars, stock: Ticker, add_diff: bool = False, diff_co
     """
     Returns dataframe with the 60 day weighted moving average
 
+    :param add_ohlc_diff:
     :param df: pandas data frame
     :param cont_vars: mete data
     :param stock: stock
@@ -205,6 +207,7 @@ def proc_add_wma20(df, cont_vars, stock: Ticker, add_diff: bool = False, diff_co
     """
     Returns dataframe with the 20 day weighted moving average
 
+    :param add_ohlc_diff:
     :param df: pandas data frame
     :param cont_vars: mete data
     :param stock: stock
@@ -249,6 +252,7 @@ def proc_add_ema30(df, cont_vars, stock: Ticker, add_diff: bool = False, diff_co
     """
     Returns dataframe with the 30 day expontial moving average
 
+    :param add_ohlc_diff:
     :param df: pandas data frame
     :param cont_vars: mete data
     :param stock: stock
@@ -266,6 +270,7 @@ def proc_add_ema10(df, cont_vars, stock: Ticker, add_diff: bool = False, diff_co
     """
     Returns dataframe with the 10 day expontial moving average
 
+    :param add_ohlc_diff:
     :param df: pandas data frame
     :param cont_vars: mete data
     :param stock: stock
@@ -310,6 +315,7 @@ def proc_add_sma20(df, cont_vars, stock: Ticker, add_diff: bool = False, diff_co
     """
     Returns dataframe with the 20 day simple moving average
 
+    :param add_ohlc_diff:
     :param df: pandas data frame
     :param cont_vars: mete data
     :param stock: stock
@@ -327,6 +333,7 @@ def proc_add_sma200(df, cont_vars, stock: Ticker, add_diff: bool = False, diff_c
 
     Returns dataframe with the 200 day simple moving average
 
+    :param add_ohlc_diff:
     :param df:
     :param cont_vars:
     :param stock:

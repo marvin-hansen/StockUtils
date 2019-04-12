@@ -92,53 +92,81 @@ def main():
 
                 return df_all
 
-            cont_vars = []  # clear everything, just in case
-            cont_vars = ["Open", "High", "Low", "Close", "Volume"]
+            def init_cont_vars():
+                cont_vars = []  # clear everything, just in case
+                cont_vars = ["Open", "High", "Low", "Close", "Volume"]
+                return cont_vars
+
+
             cat_vars = []
 
             data_all = load_data()
 
-            print(data_all.tail(3))
-
             # Set which proc to run
-            proc = PROCS.PROCS.ADD_BBAND
+            proc = PROCS.PROCS.OHLC_AVG
 
-
-
-            if proc is PROCS.PROCS.ADD_PRV_VAL:
+            # Run selected procs...
+            if proc is PROCS.PROCS.PRV_VAL:
                 print("Apply proc: " + proc.name)
                 nr_prv = 5
+                cont_vars = init_cont_vars()
                 p.proc_add_previous_values(df=data_all, column_name="Close", number=nr_prv, cont_vars=cont_vars)
                 p.inspect_data(data_all, cont_vars, cat_vars)
 
-            if proc is PROCS.PROCS.ADD_PRCT_CHNGE:
+            if proc is PROCS.PROCS.PRCT_CHNGE:
                 print("Apply proc: " + proc.name)
+                cont_vars = init_cont_vars()
+
                 p.proc_add_percent_change(df=data_all, column_name="Close", cont_vars=cont_vars)
                 p.inspect_data(data_all, cont_vars, cat_vars)
 
-            if proc is PROCS.PROCS.ADD_BBAND:
+            if proc is PROCS.PROCS.OHLC_AVG:
+                print("Apply proc: " + proc.name)
+                print("Test normal OHLC average ")
+                cont_vars = init_cont_vars()
+                data_ohlc = p.proc_add_ohlc_avg(data_all, cont_vars)
+                p.inspect_data(data_ohlc, cont_vars, cat_vars)
+
+                print("Test normal OHLC average with diff to close price")
+                data_ohlc = None
+                cont_vars = init_cont_vars()
+
+                data_ohlc = p.proc_add_ohlc_avg(data_all, cont_vars, add_diff=True)
+                p.inspect_data(data_ohlc, cont_vars, cat_vars)
+
+                print("Test normal OHLC average with diff to all OHLC prices")
+                data_ohlc = None
+                cont_vars = init_cont_vars()
+                data_ohlc = p.proc_add_ohlc_avg(data_all, cont_vars, add_ohlc_diff=True)
+                p.inspect_data(data_ohlc, cont_vars, cat_vars)
+
+            if proc is PROCS.PROCS.BBAND:
                 print("Apply proc: " + proc.name)
                 print("Test normal bands")
+                data_bb = None
+                cont_vars = init_cont_vars()
                 data_bb = p.proc_add_bband(df=data_all, stock=stock,
                                            cont_vars=cont_vars, add_diff_to_bb=False)
                 p.inspect_data(data_bb, cont_vars, cat_vars)
 
                 print("Test bands with diff to close price ")
                 data_bb = None
+                cont_vars = init_cont_vars()
                 data_bb = p.proc_add_bband(df=data_all, stock=stock,
                                            cont_vars=cont_vars, add_diff_to_bb=True)
                 p.inspect_data(data_bb, cont_vars, cat_vars)
 
                 print("Test bands with diff to all four OHLC prices ")
                 data_bb = None
+                cont_vars = init_cont_vars()
                 data_bb = p.proc_add_bband(df=data_all, stock=stock,
                                            cont_vars=cont_vars, add_diff_to_bb=False, add_ohlc_diff=True)
                 p.inspect_data(data_bb, cont_vars, cat_vars)
 
-
-            if proc is PROCS.PROCS.ADD_SMA:
+            if proc is PROCS.PROCS.SMA:
                 print("Apply proc: " + proc.name)
 
+                cont_vars = init_cont_vars()
                 # data_sma = p.proc_add_sma20(df=data_all, cont_vars=cont_vars, stock=stock, add_diff=False,add_ohlc_diff=True)
                 # data_sma = p.proc_add_sma200(df=data_all, cont_vars=cont_vars, stock=stock, add_diff=False,add_ohlc_diff=True)
 
@@ -149,9 +177,10 @@ def main():
 
                 print(data_sma.info())
 
-            if proc is PROCS.PROCS.ADD_EMA:
+            if proc is PROCS.PROCS.EMA:
                 print("Apply proc: " + proc.name)
 
+                cont_vars = init_cont_vars()
                 # data_ema = p.proc_add_ema10(df=data_all, cont_vars=cont_vars, stock=stock, add_diff=True)
                 data_ema = p.proc_add_ema30(df=data_all, cont_vars=cont_vars, stock=stock, add_diff=True)
 
@@ -159,12 +188,17 @@ def main():
 
                 p.inspect_data(data_ema, cont_vars, cat_vars)
 
-            if proc is PROCS.PROCS.ADD_WMA:
+            if proc is PROCS.PROCS.WMA:
                 print("Apply proc: " + proc.name)
+
+                data_wma = None
+                cont_vars = init_cont_vars()
 
                 data_wma = p.proc_add_wma20(df=data_all, cont_vars=cont_vars, stock=stock, add_diff=True)
                 data_wma = p.proc_add_wma60(df=data_all, cont_vars=cont_vars, stock=stock, add_diff=True)
 
+                data_wma = None
+                cont_vars = init_cont_vars()
                 data_wma = p.proc_add_wma20_wma_60_diff(df=data_all, cont_vars=cont_vars, stock=stock)
 
                 p.inspect_data(data_wma, cont_vars, cat_vars)

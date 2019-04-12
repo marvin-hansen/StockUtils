@@ -19,6 +19,24 @@ def proc_close_only(df, cont_vars):
     return df.drop(columns=features)
 
 
+def proc_add_datepart(df, cont_vars, cat_vars, date_col_name: str = "Date"):
+    """
+    Categorifies date field
+    :param df: pandas data frame
+    :param cont_vars: continous meta data
+    :param cat_vars: categorial meta data
+    :return: pandas data frame with date categories
+    """
+    # requires fast.ai install
+    # add_datepart(df, date_col_name, drop=False)
+    cont_vars.append("Elapsed")
+    column_names = df.columns.values.tolist()
+    start = column_names.index("Year")
+    end = column_names.index("Is_year_end")
+    for i in range(start, end):
+        cat_vars.append(column_names[i])
+
+
 def proc_add_previous_values(df, column_name, number, cont_vars):
     """ Adds n-previous values and stores each in a seperate column
         According to findings by tsfresh, the previous value can have as much
@@ -46,22 +64,30 @@ def proc_add_percent_change(df, column_name, cont_vars):
     cont_vars.append(column_name + "-pct-chng")
 
 
-def proc_add_datepart(df, cont_vars, cat_vars, date_col_name: str = "Date"):
-    """
-    Categorifies date field
-    :param df: pandas data frame
-    :param cont_vars: continous meta data
-    :param cat_vars: categorial meta data
-    :return: pandas data frame with date categories
-    """
-    # requires fast.ai install
-    # add_datepart(df, date_col_name, drop=False)
-    cont_vars.append("Elapsed")
-    column_names = df.columns.values.tolist()
-    start = column_names.index("Year")
-    end = column_names.index("Is_year_end")
-    for i in range(start, end):
-        cat_vars.append(column_names[i])
+def proc_add_ohlc_avg(df, cont_vars, add_diff: bool = False, diff_col: str = "Close",
+                      add_ohlc_diff: bool = False):
+    col_name = "ohlc_avg"
+    df[col_name] = ((df["Open"] + df["High"] + df["Low"] + df["Close"]) / 4)
+    # update meta-data 
+    cont_vars.append(col_name)
+
+    if add_diff:
+
+        df[diff_col + "_" + col_name + "_Diff"] = df[diff_col] - df[col_name]
+        cont_vars.append(diff_col + "_" + col_name + "_Diff")
+        return df
+
+    elif add_ohlc_diff:
+        ohcl = ["Open", "High", "Low", "Close"]
+        for c_name in ohcl:
+            # Calculate distance between specified price column and the moving average
+            df[c_name + "_" + col_name + "_Diff"] = df[c_name] - df[col_name]
+            # update meta data
+            cont_vars.append(c_name + "_" + col_name + "_Diff")
+        return df
+
+    else:
+        return df
 
 
 def proc_add_bband(df, stock: Ticker, cont_vars,

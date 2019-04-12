@@ -65,7 +65,10 @@ def main():
 
         if procs:
 
+            # set stock
             stock = Ticker.Ticker.AMZN
+            # Set which proc to run
+            proc = PROCS.PROCS.WMA
 
             def load_data():
                 all = True
@@ -102,9 +105,6 @@ def main():
 
             data_all = load_data()
 
-            # Set which proc to run
-            proc = PROCS.PROCS.MACD
-
             # Run selected procs...
             if proc is PROCS.PROCS.PRV_VAL:
                 print("Apply proc: " + proc.name)
@@ -129,6 +129,23 @@ def main():
 
                 p.inspect_data(data_macd, cont_vars, cat_vars)
 
+            if proc is PROCS.PROCS.RSI:
+                print("Apply proc: " + proc.name)
+                print("Test normal RSI ")
+                cont_vars = init_cont_vars()
+                data_macd = None
+                rsi_data = p.proc_add_rsi(df=data_all, cont_vars=cont_vars, stock=stock)
+
+                p.inspect_data(rsi_data, cont_vars, cat_vars)
+
+                print("Apply proc: " + proc.name)
+                print("Test normal RSI with percentage change ")
+                cont_vars = init_cont_vars()
+                data_macd = None
+                rsi_data = p.proc_add_rsi(df=data_all, cont_vars=cont_vars, stock=stock, change=True)
+
+                p.inspect_data(rsi_data, cont_vars, cat_vars)
+
             if proc is PROCS.PROCS.ADX:
                 print("Apply proc: " + proc.name)
                 print("Test normal ADX ")
@@ -143,7 +160,6 @@ def main():
                 cont_vars = init_cont_vars()
                 data_adx = p.proc_add_adx(df=data_all, cont_vars=cont_vars, stock=stock, change=True)
                 p.inspect_data(data_adx, cont_vars, cat_vars)
-
 
             if proc is PROCS.PROCS.OBV:
                 print("Apply proc: " + proc.name)
@@ -174,8 +190,6 @@ def main():
                 cont_vars = init_cont_vars()
                 data_mom = p.proc_add_mom(df=data_all, cont_vars=cont_vars, stock=stock, change=True)
                 p.inspect_data(data_mom, cont_vars, cat_vars)
-
-
 
             if proc is PROCS.PROCS.OHLC_AVG:
                 print("Apply proc: " + proc.name)
@@ -256,7 +270,8 @@ def main():
 
                 data_wma = None
                 cont_vars = init_cont_vars()
-                data_wma = p.proc_add_wma20_wma_60_diff(df=data_all, cont_vars=cont_vars, stock=stock)
+                data_wma = p.proc_add_wma20_wma_60_diff(df=data_all, cont_vars=cont_vars, stock=stock,
+                                                        add_ohlc_diff=True)
 
                 p.inspect_data(data_wma, cont_vars, cat_vars)
 

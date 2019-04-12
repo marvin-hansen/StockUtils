@@ -13,5 +13,6 @@ class PROCS(Enum):
     OHLC_AVG = 7
     MOM = 8
     OBV = 9
-    MACD = 10
-    ADX = 11
+    ADX = 10
+    MACD = 11
+    RSI = 12

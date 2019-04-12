@@ -66,6 +66,18 @@ def proc_add_percent_change(df, column_name, cont_vars):
 
 def proc_add_ohlc_avg(df, cont_vars, add_diff: bool = False, diff_col: str = "Close",
                       add_ohlc_diff: bool = False):
+    """
+    Adds the average of the open, high, low, and close price to the dataframe.
+
+    Adds distance to either a given diff_col(umn) or the distance to all four ohlc prices.
+
+    :param df: pandas data frame
+    :param cont_vars: continous mete data
+    :param add_diff: bool - adds difference between ohlc_avg and a specified column
+    :param diff_col: specifies column for difference calculation
+    :param add_ohlc_diff: adds difference to all four ohlc prices
+    :return: pandas data frame
+    """
     col_name = "ohlc_avg"
     df[col_name] = ((df["Open"] + df["High"] + df["Low"] + df["Close"]) / 4)
     # update meta-data 

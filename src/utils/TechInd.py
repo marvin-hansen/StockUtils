@@ -11,7 +11,7 @@ from src.enum import TimeFrame
 from src.utils import KeyManager as k
 from src.utils.KeyManager import KEYS
 
-DBG = True
+DBG = False
 cache_folder = "cache"
 out_form = 'pandas'
 if DBG:
@@ -66,7 +66,7 @@ def get_cached_tech_indicator(indicator: TECHIND,
 
     if exists:
         if DBG:
-            print("Load full data from cache")
+            print("Load tech indicators from cache")
         return __load_from_local_file(path)
 
     else:
@@ -79,7 +79,9 @@ def get_cached_tech_indicator(indicator: TECHIND,
         df.to_csv(path)
         if DBG:
             print("Return tech indicators for stock: " + stock.name)
-        return df
+        # this fixes a ridiculous bug. Apparently, the web request returns some gibberish that causes
+        # the subsequent procs to crash. When reading the CSV file from disk, zero crashes occur.
+        return __load_from_local_file(path)
 
 
 def get_tech_indicator(indicator: TECHIND.TECHIND,
@@ -137,7 +139,7 @@ def get_tech_indicator(indicator: TECHIND.TECHIND,
 
     if indicator is TECHIND.TECHIND.OBV:
         data, _ = ti.get_obv(symbol=stock.name, interval=interval.name.lower())
-    return data.reset_index()
+    return data  # .reset_index()
 
 
 def __load_from_local_file(path):

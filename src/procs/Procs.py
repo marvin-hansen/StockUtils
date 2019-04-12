@@ -163,61 +163,6 @@ def proc_add_wma20_wma_60_diff(df, cont_vars, stock: Ticker):
     return df
 
 
-def proc_add_ema10_ema_30_diff(df, cont_vars, stock: Ticker):
-    """
-
-    :param df:
-    :param cont_vars:
-    :param stock:
-    :return:
-    """
-    ema10: str = "EMA_10"
-    ema30: str = "EMA_30"
-    res_name: str = "EMA_10_EMA_30_Diff"
-    columns = df.columns.values.tolist()
-
-    if ema10 not in columns:
-        df = proc_add_ema10(df=df, cont_vars=cont_vars, stock=stock, add_diff=True)
-
-    if ema30 not in columns:
-        df = proc_add_ema30(df=df, cont_vars=cont_vars, stock=stock, add_diff=True)
-
-    # calculate difference between EMA  10 and 30
-    df[res_name] = df[ema10] - df[ema30]
-    # update meta data
-    cont_vars.append(res_name)
-
-    return df
-
-
-def proc_add_sma20_sma_200_diff(df, cont_vars, stock: Ticker):
-    """
-    Adds
-
-    :param df:
-    :param cont_vars:
-    :param stock:
-    :return:
-    """
-    sma20: str = "SMA_20"
-    sma200: str = "SMA_200"
-    res_name: str = "SMA_200_SMA_20_Diff"
-    columns = df.columns.values.tolist()
-
-    if sma20 not in columns:
-        df = proc_add_sma20(df=df, cont_vars=cont_vars, stock=stock, add_diff=True)
-
-    if sma200 not in columns:
-        df = proc_add_sma200(df=df, cont_vars=cont_vars, stock=stock, add_diff=True)
-
-    # calculate difference between SMA 20 and 200
-    df[res_name] = df[sma20] - df[sma200]
-    # update meta data
-    cont_vars.append(res_name)
-
-    return df
-
-
 def proc_add_wma60(df, cont_vars, stock: Ticker, add_diff: bool = False, diff_col: str = "Close"):
     """
     Returns dataframe with the 60 day weighted moving average
@@ -246,6 +191,33 @@ def proc_add_wma20(df, cont_vars, stock: Ticker, add_diff: bool = False, diff_co
     """
     return proc_add_mov_avg(df=df, cont_vars=cont_vars, stock=stock,
                             mov_avg='wma', time_period=20, add_diff=add_diff, diff_col=diff_col)
+
+
+def proc_add_ema10_ema_30_diff(df, cont_vars, stock: Ticker, add_ohlc_diff: bool = False):
+    """
+
+    :param df:
+    :param cont_vars:
+    :param stock:
+    :return:
+    """
+    ema10: str = "EMA_10"
+    ema30: str = "EMA_30"
+    res_name: str = "EMA_10_EMA_30_Diff"
+    columns = df.columns.values.tolist()
+
+    if ema10 not in columns:
+        df = proc_add_ema10(df=df, cont_vars=cont_vars, stock=stock, add_ohlc_diff=add_ohlc_diff)
+
+    if ema30 not in columns:
+        df = proc_add_ema30(df=df, cont_vars=cont_vars, stock=stock, add_ohlc_diff=add_ohlc_diff)
+
+    # calculate difference between EMA  10 and 30
+    df[res_name] = df[ema10] - df[ema30]
+    # update meta data
+    cont_vars.append(res_name)
+
+    return df
 
 
 def proc_add_ema30(df, cont_vars, stock: Ticker, add_diff: bool = False, diff_col: str = "Close"):
@@ -278,7 +250,35 @@ def proc_add_ema10(df, cont_vars, stock: Ticker, add_diff: bool = False, diff_co
                             mov_avg='ema', time_period=10, add_diff=add_diff, diff_col=diff_col)
 
 
-def proc_add_sma20(df, cont_vars, stock: Ticker, add_diff: bool = False, diff_col: str = "Close"):
+def proc_add_sma20_sma_200_diff(df, cont_vars, stock: Ticker, add_ohlc_diff: bool = False):
+    """
+    :param add_ohlc_diff:
+    :param df:
+    :param cont_vars:
+    :param stock:
+    :return:
+    """
+    sma20: str = "SMA_20"
+    sma200: str = "SMA_200"
+    res_name: str = "SMA_200_SMA_20_Diff"
+    columns = df.columns.values.tolist()
+
+    if sma20 not in columns:
+        df = proc_add_sma20(df=df, cont_vars=cont_vars, stock=stock, add_diff=False, add_ohlc_diff=add_ohlc_diff)
+
+    if sma200 not in columns:
+        df = proc_add_sma200(df=df, cont_vars=cont_vars, stock=stock, add_diff=False, add_ohlc_diff=add_ohlc_diff)
+
+    # calculate difference between SMA 20 and 200
+    df[res_name] = df[sma20] - df[sma200]
+    # update meta data
+    cont_vars.append(res_name)
+
+    return df
+
+
+def proc_add_sma20(df, cont_vars, stock: Ticker, add_diff: bool = False, diff_col: str = "Close",
+                   add_ohlc_diff: bool = False):
     """
     Returns dataframe with the 20 day simple moving average
 
@@ -289,11 +289,12 @@ def proc_add_sma20(df, cont_vars, stock: Ticker, add_diff: bool = False, diff_co
     :param diff_col:
     :return:
     """
-    return proc_add_mov_avg(df=df, cont_vars=cont_vars, stock=stock,
-                            mov_avg='sma', time_period=20, add_diff=add_diff, diff_col=diff_col)
+    return proc_add_mov_avg(df=df, cont_vars=cont_vars, stock=stock, mov_avg='sma', time_period=20,
+                            add_diff=add_diff, diff_col=diff_col, add_ohlc_diff=add_ohlc_diff)
 
 
-def proc_add_sma200(df, cont_vars, stock: Ticker, add_diff: bool = False, diff_col: str = "Close"):
+def proc_add_sma200(df, cont_vars, stock: Ticker, add_diff: bool = False, diff_col: str = "Close",
+                    add_ohlc_diff: bool = False):
     """
 
     Returns dataframe with the 200 day simple moving average
@@ -305,8 +306,8 @@ def proc_add_sma200(df, cont_vars, stock: Ticker, add_diff: bool = False, diff_c
     :param diff_col:
     :return:
     """
-    return proc_add_mov_avg(df=df, cont_vars=cont_vars, stock=stock,
-                            mov_avg='sma', time_period=200, add_diff=add_diff, diff_col=diff_col)
+    return proc_add_mov_avg(df=df, cont_vars=cont_vars, stock=stock, mov_avg='sma', time_period=200,
+                            add_diff=add_diff, diff_col=diff_col, add_ohlc_diff=add_ohlc_diff)
 
 
 def proc_add_mov_avg(df, cont_vars,
@@ -315,7 +316,8 @@ def proc_add_mov_avg(df, cont_vars,
                      time_period: int = 20,
                      merge_on: str = "Date",
                      add_diff: bool = False,
-                     diff_col: str = "Close"):
+                     diff_col: str = "Close",
+                     add_ohlc_diff: bool = False):
     """
     :param df: pandas dataframe
     :param cont_vars: mete data
@@ -325,6 +327,7 @@ def proc_add_mov_avg(df, cont_vars,
     :param merge_on: Index to merge data. Set to "Date" by default
     :param add_diff: Add a difference column that contains the difference between the specified column and the moving average. Set to False by default.
     :param diff_col: Specifies the column for calculating the difference. Set to "Close" by default
+    :param add_ohlc_diff: Calculates the difference between the mov. avarage and each of the four OHLC prices.
     :return: pandas dataframe  with moving average column and diff column add_diff is set to true.
     """
 
@@ -346,12 +349,27 @@ def proc_add_mov_avg(df, cont_vars,
     if (add_diff):
         # Merge
         df_merge = pd.merge(df, ma_data, on=merge_on)
-        # Calculate distance between specified price column each of the three BB bands.
-        df_merge[col_name + "_Diff"] = df_merge[diff_col] - df_merge[col_name]
+        # Calculate distance between specified price column and the moving average
+        df_merge[diff_col + "_" + col_name + "_Diff"] = df_merge[diff_col] - df_merge[col_name]
         # update meta data
         cont_vars.append(diff_col + "_" + col_name + "_Diff")
 
         return df_merge
+
+    elif (add_ohlc_diff):
+        # Merge
+        df_merge = pd.merge(df, ma_data, on=merge_on)
+        ohcl = ["Open", "High", "Low", "Close"]
+        col_name = mov_avg.upper() + "_" + str(time_period)
+
+        for c_name in ohcl:
+            # Calculate distance between specified price column and the moving average
+            df_merge[c_name + "_" + col_name + "_Diff"] = df_merge[c_name] - df_merge[col_name]
+            # update meta data
+            cont_vars.append(c_name + "_" + col_name + "_Diff")
+
+        return df_merge
+
     else:
         return pd.merge(df, ma_data, on=merge_on)
 
@@ -423,7 +441,7 @@ def rename_data(data):
     return data
 
 
-def convert_date(df, date_col_name: str = "Date"):
+def convert_date(df, date_col_name: str = None):
     """
     Converts the given date column from the standard object to an instance of datetime. 
     :param df: pandas data frame 
@@ -456,7 +474,8 @@ def __load_moving_avg(stock: Ticker, mov_avg: str = 'sma', time_period: int = 20
         ind = TECHIND.TECHIND.SMA
 
     ma_data = t.get_cached_tech_indicator(indicator=ind, stock=stock, time_period=time_period)
-    ma_data = convert_date(ma_data, "date")
+    date_col_name: str = "date"
+    ma_data[date_col_name] = pd.to_datetime(ma_data[date_col_name], infer_datetime_format=True)
 
     return ma_data
 

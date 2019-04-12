@@ -26,7 +26,7 @@ API limit: 5 API requests per minute and 500 requests per day
 https://www.alphavantage.co/support/#support
 """
 
-DBG = False
+DBG = True
 cache_folder = "cache"
 out_form = 'pandas'
 
@@ -108,7 +108,7 @@ def cached_stock_loader(stock: Ticker, period: TimeFrame = TimeFrame.TimeFrame.D
 
             if dbg:
                 print("Return full data file")
-            return df, df_meta
+            return __load_from_local_file(path, f_meta_full)
 
     else:
         if dbg:

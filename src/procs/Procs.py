@@ -67,7 +67,7 @@ def proc_add_percent_change(df, column_name, cont_vars):
 
 def proc_add_adx(df, cont_vars, stock: Ticker, change: bool = False):
     """
-     Returns the average directional movement index (ADX) values.
+     Returns the average directional movement index (ADX) values for the given stock.
 
     :param df: pandas daframe
     :param cont_vars: meta data
@@ -91,7 +91,6 @@ def proc_add_adx(df, cont_vars, stock: Ticker, change: bool = False):
     # replaces NaN with 0
     df_merge.fillna(0)
     return df_merge
-
 
 
 def proc_add_obv(df, cont_vars, stock: Ticker, change: bool = False):
@@ -197,19 +196,45 @@ def proc_add_ohlc_avg(df, cont_vars, add_diff: bool = False, diff_col: str = "Cl
 
 
 def proc_add_macd(df, cont_vars, stock: Ticker):
+    """
+
+    Proc returns the moving average convergence / divergence (MACD) values for the given stock.
+
+    Also adds the difference between MACD and signal as well as percentage change for each value.
+
+    :param df: pandas daframe
+    :param cont_vars: meta data
+    :param stock: stock ticker
+    :param change: bool - when set to true, the percentage change will be added. False by default
+    :return:
+    """
     macd_data = t.get_cached_tech_indicator(indicator=TECHIND.TECHIND.MACD, stock=stock)
     macd_data = __rename_column(macd_data, "date", 'Date')
     convert_date(macd_data, "Date")
 
-    # MACD_Signal
-    # MACD
-    # MACD_Hist
+    macd = "MACD"
+    macd_sign = "MACD_Signal"
+    macd_hist = "MACD_Hist"
 
     # update meta data
-    # cont_vars.append("MOM")
+    cont_vars.append(macd)
+    cont_vars.append(macd_sign)
+    cont_vars.append(macd_hist)
 
     # Merge
     df_merge = pd.merge(df, macd_data, on="Date")
+    # captures convergence / divergence between MACD & Signal
+    col_name = "MACD_SIGN_DIFF"
+    df_merge[col_name] = df_merge[macd] - df_merge[macd_sign]
+
+    cont_vars.append(col_name)
+    # captures the percentage change ...
+    macd_columns = macd_data.columns.values.tolist()
+    macd_columns.remove("Date")
+    for col in macd_columns:
+        c_name = col + "_Change"
+        df_merge[c_name] = df_merge[col].pct_change()
+        cont_vars.append(c_name)
 
     return df_merge
 

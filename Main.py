@@ -103,7 +103,7 @@ def main():
             data_all = load_data()
 
             # Set which proc to run
-            proc = PROCS.PROCS.ADX
+            proc = PROCS.PROCS.MACD
 
             # Run selected procs...
             if proc is PROCS.PROCS.PRV_VAL:
@@ -126,6 +126,7 @@ def main():
                 data_macd = None
                 cont_vars = init_cont_vars()
                 data_macd = p.proc_add_macd(df=data_all, cont_vars=cont_vars, stock=stock)
+
                 p.inspect_data(data_macd, cont_vars, cat_vars)
 
             if proc is PROCS.PROCS.ADX:

@@ -134,8 +134,8 @@ def get_tech_indicator(indicator: TECHIND.TECHIND,
     if indicator is TECHIND.TECHIND.AROON:
         data, _ = ti.get_aroon(symbol=stock.name, interval=interval.name.lower(), time_period=time_period)
 
-    if indicator is TECHIND.TECHIND.AD:
-        data, _ = ti.get_ad(symbol=stock.name, interval=interval.name.lower())
+    if indicator is TECHIND.TECHIND.MOM:
+        data, _ = ti.get_mom(symbol=stock.name, interval=interval.name.lower())
 
     if indicator is TECHIND.TECHIND.OBV:
         data, _ = ti.get_obv(symbol=stock.name, interval=interval.name.lower())

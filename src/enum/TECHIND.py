@@ -6,7 +6,7 @@ from enum import Enum, unique
 
 @unique
 class TECHIND(Enum):
-    AD = 1
+    MOM = 1
     ADX = 2
     AROON = 3
     BBANDS = 4  #

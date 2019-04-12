@@ -103,7 +103,7 @@ def main():
             data_all = load_data()
 
             # Set which proc to run
-            proc = PROCS.PROCS.OHLC_AVG
+            proc = PROCS.PROCS.MOM
 
             # Run selected procs...
             if proc is PROCS.PROCS.PRV_VAL:
@@ -119,6 +119,23 @@ def main():
 
                 p.proc_add_percent_change(df=data_all, column_name="Close", cont_vars=cont_vars)
                 p.inspect_data(data_all, cont_vars, cat_vars)
+
+            if proc is PROCS.PROCS.MOM:
+                print("Apply proc: " + proc.name)
+                print("Test normal momentum  ")
+                data_mom = None
+                cont_vars = init_cont_vars()
+                data_mom = p.proc_add_mom(df=data_all, cont_vars=cont_vars, stock=stock)
+                p.inspect_data(data_mom, cont_vars, cat_vars)
+
+                print("Apply proc: " + proc.name)
+                print("Test momentum with percentage change ")
+                data_mom = None
+                cont_vars = init_cont_vars()
+                data_mom = p.proc_add_mom(df=data_all, cont_vars=cont_vars, stock=stock, change=True)
+                p.inspect_data(data_mom, cont_vars, cat_vars)
+
+
 
             if proc is PROCS.PROCS.OHLC_AVG:
                 print("Apply proc: " + proc.name)

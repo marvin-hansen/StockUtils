@@ -58,11 +58,31 @@ def proc_add_percent_change(df, column_name, cont_vars):
     :param column_name: String - name of the column
     :return: Void - modifies the frame in place
     """
-    df[column_name + '-delta'] = df[column_name] - df[column_name].shift(-1)
-    df[column_name + "-pct-chng"] = (df[column_name + "-delta"] / df[column_name]) * 100
+    df[column_name + '-delta'] = df[column_name].diff
+    df[column_name + "-pct-chng"] = df[column_name].pct_change()
+    df.fillna(0)
     cont_vars.append(column_name + '-delta')
     cont_vars.append(column_name + "-pct-chng")
 
+
+def proc_add_mom(df, cont_vars, stock: Ticker, change: bool = False):
+    mom_data = t.get_cached_tech_indicator(indicator=TECHIND.TECHIND.MOM, stock=stock)
+    mom_data = __rename_column(mom_data, "date", 'Date')
+    convert_date(mom_data, "Date")
+
+    # update meta data
+    cont_vars.append("MOM")
+
+    # Merge
+    df_merge = pd.merge(df, mom_data, on="Date")
+
+    if change:
+        col_name = "MOM_CHANGE"
+        df_merge[col_name] = df_merge["MOM"].pct_change()
+        cont_vars.append(col_name)
+
+    df_merge.fillna(0)  # replaces NaN with 0
+    return df_merge
 
 def proc_add_ohlc_avg(df, cont_vars, add_diff: bool = False, diff_col: str = "Close",
                       add_ohlc_diff: bool = False):
@@ -102,7 +122,7 @@ def proc_add_ohlc_avg(df, cont_vars, add_diff: bool = False, diff_col: str = "Cl
         return df
 
 
-def proc_add_bband(df, stock: Ticker, cont_vars,
+def proc_add_bband(df, cont_vars, stock: Ticker,
                    merge_on: str = "Date",
                    add_diff_to_bb: bool = False,
                    diff_col: str = "Close",

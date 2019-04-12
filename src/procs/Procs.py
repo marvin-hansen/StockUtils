@@ -65,6 +65,42 @@ def proc_add_percent_change(df, column_name, cont_vars):
     cont_vars.append(column_name + "-pct-chng")
 
 
+def proc_add_obv(df, cont_vars, stock: Ticker, change: bool = False):
+    """
+
+    Adds the on balance volume (OBV) to the given data frame.
+
+    Details: "On-Balance Volume: The Way To Smart Money"
+    https://www.investopedia.com/articles/technical/100801.asp
+
+    When change=True, then the percentage change relative to the previous value
+    is added in a seperate column OBV_CHANGE
+
+    :param df: pandas daframe
+    :param cont_vars: meta data
+    :param stock: stock ticker
+    :param change: bool - when set to true, the percentage change will be added. False by default
+    :return:
+    """
+
+    obv_data = t.get_cached_tech_indicator(indicator=TECHIND.TECHIND.OBV, stock=stock)
+    obv_data = __rename_column(obv_data, "date", 'Date')
+    convert_date(obv_data, "Date")
+    # update meta data
+    cont_vars.append("OBV")
+    # Merge
+    df_merge = pd.merge(df, obv_data, on="Date")
+
+    if change:
+        col_name = "OBV_CHANGE"
+        df_merge[col_name] = df_merge["OBV"].pct_change()
+        cont_vars.append(col_name)
+    # replaces NaN with 0
+    df_merge.fillna(0)
+    return df_merge
+
+
+
 def proc_add_mom(df, cont_vars, stock: Ticker, change: bool = False):
     """
     Adds momentum to the given pandas frame.

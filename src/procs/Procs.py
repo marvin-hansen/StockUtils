@@ -65,6 +65,35 @@ def proc_add_percent_change(df, column_name, cont_vars):
     cont_vars.append(column_name + "-pct-chng")
 
 
+def proc_add_adx(df, cont_vars, stock: Ticker, change: bool = False):
+    """
+     Returns the average directional movement index (ADX) values.
+
+    :param df: pandas daframe
+    :param cont_vars: meta data
+    :param stock: stock ticker
+    :param change: bool - when set to true, the percentage change will be added. False by default
+    :return:
+    """
+
+    adx_data = t.get_cached_tech_indicator(indicator=TECHIND.TECHIND.ADX, stock=stock)
+    adx_data = __rename_column(adx_data, "date", 'Date')
+    convert_date(adx_data, "Date")
+    # update meta data
+    cont_vars.append("ADX")
+    # Merge
+    df_merge = pd.merge(df, adx_data, on="Date")
+
+    if change:
+        col_name = "ADX_CHANGE"
+        df_merge[col_name] = df_merge["ADX"].pct_change()
+        cont_vars.append(col_name)
+    # replaces NaN with 0
+    df_merge.fillna(0)
+    return df_merge
+
+
+
 def proc_add_obv(df, cont_vars, stock: Ticker, change: bool = False):
     """
 
@@ -98,7 +127,6 @@ def proc_add_obv(df, cont_vars, stock: Ticker, change: bool = False):
     # replaces NaN with 0
     df_merge.fillna(0)
     return df_merge
-
 
 
 def proc_add_mom(df, cont_vars, stock: Ticker, change: bool = False):
@@ -166,6 +194,24 @@ def proc_add_ohlc_avg(df, cont_vars, add_diff: bool = False, diff_col: str = "Cl
 
     else:
         return df
+
+
+def proc_add_macd(df, cont_vars, stock: Ticker):
+    macd_data = t.get_cached_tech_indicator(indicator=TECHIND.TECHIND.MACD, stock=stock)
+    macd_data = __rename_column(macd_data, "date", 'Date')
+    convert_date(macd_data, "Date")
+
+    # MACD_Signal
+    # MACD
+    # MACD_Hist
+
+    # update meta data
+    # cont_vars.append("MOM")
+
+    # Merge
+    df_merge = pd.merge(df, macd_data, on="Date")
+
+    return df_merge
 
 
 def proc_add_bband(df, cont_vars, stock: Ticker,

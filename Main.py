@@ -103,7 +103,7 @@ def main():
             data_all = load_data()
 
             # Set which proc to run
-            proc = PROCS.PROCS.OBV
+            proc = PROCS.PROCS.ADX
 
             # Run selected procs...
             if proc is PROCS.PROCS.PRV_VAL:
@@ -119,6 +119,30 @@ def main():
 
                 p.proc_add_percent_change(df=data_all, column_name="Close", cont_vars=cont_vars)
                 p.inspect_data(data_all, cont_vars, cat_vars)
+
+            if proc is PROCS.PROCS.MACD:
+                print("Apply proc: " + proc.name)
+                print("Test normal MACD ")
+                data_macd = None
+                cont_vars = init_cont_vars()
+                data_macd = p.proc_add_macd(df=data_all, cont_vars=cont_vars, stock=stock)
+                p.inspect_data(data_macd, cont_vars, cat_vars)
+
+            if proc is PROCS.PROCS.ADX:
+                print("Apply proc: " + proc.name)
+                print("Test normal ADX ")
+                data_adx = None
+                cont_vars = init_cont_vars()
+                data_adx = p.proc_add_adx(df=data_all, cont_vars=cont_vars, stock=stock)
+                p.inspect_data(data_adx, cont_vars, cat_vars)
+
+                print("Apply proc: " + proc.name)
+                print("Test  ADX with percentage change ")
+                data_obv = None
+                cont_vars = init_cont_vars()
+                data_adx = p.proc_add_adx(df=data_all, cont_vars=cont_vars, stock=stock, change=True)
+                p.inspect_data(data_adx, cont_vars, cat_vars)
+
 
             if proc is PROCS.PROCS.OBV:
                 print("Apply proc: " + proc.name)

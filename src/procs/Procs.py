@@ -62,12 +62,10 @@ def proc_add_percent_change(df, column_name, cont_vars):
     :param column_name: String - name of the column
     :return: Void - modifies the frame in place
     """
-    df[column_name + '-delta'] = df[column_name].diff
-    df[column_name + "-pct-chng"] = df[column_name].pct_change()
-    df.fillna(0)
+    df[column_name + '-delta'] = df[column_name] - df[column_name].shift(-1)
+    df[column_name + "-pct-chng"] = (df[column_name + "-delta"] / df[column_name]) * 100
     cont_vars.append(column_name + '-delta')
     cont_vars.append(column_name + "-pct-chng")
-
     return df
 
 

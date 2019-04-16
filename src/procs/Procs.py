@@ -52,7 +52,7 @@ def proc_add_next_y(df, y_column, number, cont_vars):
     :return:
     """
 
-    c_name = y_column + str("-") + str("NEXT") + str("-") + str(number)
+    c_name = "y-" + str(number)
     df[c_name] = df[y_column].shift(-number)
     cont_vars.append(c_name)
     return df

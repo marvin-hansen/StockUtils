@@ -51,8 +51,8 @@ def proc_add_next_y(df, y_column, number, cont_vars):
     :param cont_vars:
     :return:
     """
-
-    c_name = "y-" + str(number)
+    # https://riptutorial.com/pandas/example/24907/shifting-or-lagging-values-in-a-dataframe
+    c_name = "y+" + str(number)
     df[c_name] = df[y_column].shift(-number)
     cont_vars.append(c_name)
     return df
@@ -71,7 +71,6 @@ def proc_add_previous_values(df, column_name, number, cont_vars):
     for n in range(1, (number + 1)):
         df[column_name + str("-") + str(n)] = df[column_name].shift(n)
         cont_vars.append(column_name + str("-") + str(n))
-        return df
 
 
 def proc_add_percent_change(df, column_name, cont_vars):

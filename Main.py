@@ -68,7 +68,7 @@ def main():
             # set stock
             stock = Ticker.Ticker.AMZN
             # Set which proc to run
-            proc = PROCS.PROCS.NXT_VAL
+            proc = PROCS.PROCS.PRV_VAL
 
             def load_data():
                 all = True
@@ -116,7 +116,7 @@ def main():
             # Run selected procs...
             if proc is PROCS.PROCS.PRV_VAL:
                 print("Apply proc: " + proc.name)
-                nr_prv = 3
+                nr_prv = 5
                 cont_vars = init_cont_vars()
                 p.proc_add_previous_values(df=data_all, column_name="Close", number=nr_prv, cont_vars=cont_vars)
                 p.inspect_data(data_all, cont_vars, cat_vars)

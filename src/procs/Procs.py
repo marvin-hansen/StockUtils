@@ -42,6 +42,22 @@ def proc_add_datepart(df, cont_vars, cat_vars, date_col_name: str = "Date"):
         cat_vars.append(column_names[i])
 
 
+def proc_add_next_y(df, y_column, number, cont_vars):
+    """
+    Adds the n-next value of the y column
+    :param df:
+    :param y_column:
+    :param number:
+    :param cont_vars:
+    :return:
+    """
+
+    c_name = y_column + str("-") + str("NEXT") + str("-") + str(number)
+    df[c_name] = df[y_column].shift(-number)
+    cont_vars.append(c_name)
+    return df
+
+
 def proc_add_previous_values(df, column_name, number, cont_vars):
     """ Adds n-previous values and stores each in a seperate column
         According to findings by tsfresh, the previous value can have as much
@@ -53,8 +69,9 @@ def proc_add_previous_values(df, column_name, number, cont_vars):
     :return: Void - modifies the frame in place
     """
     for n in range(1, (number + 1)):
-        df[column_name + str("-") + str(n)] = df[column_name].shift(-n)
+        df[column_name + str("-") + str(n)] = df[column_name].shift(n)
         cont_vars.append(column_name + str("-") + str(n))
+        return df
 
 
 def proc_add_percent_change(df, column_name, cont_vars):
@@ -703,6 +720,7 @@ def inspect_data(data, cont_vars, cat_vars):
     :param cat_vars: meta data array
     :return: void
     """
+    n = 5
     print()
     print("!!INSPECT DATA FRAME!!")
     print()
@@ -711,9 +729,9 @@ def inspect_data(data, cont_vars, cat_vars):
     print("Cont. meta-data: " + str(cont_vars))
     print("Cat. meta-data: " + str(cat_vars))
     print()
-    print(data.head(3))
+    print(data.head(n))
     print()
-    print(data.tail(3))
+    print(data.tail(n))
 
 
 def rename_data(data):

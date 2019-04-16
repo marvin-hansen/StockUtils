@@ -3,7 +3,8 @@ from enum import Enum, unique
 @unique
 class PROCS(Enum):
     ALL_PROCS = -7
-    CAT_DATE = 0
+    CAT_DATE = -1
+    NXT_VAL = 0
     PRV_VAL = 1
     PRCT_CHNGE = 2
     BBAND = 3

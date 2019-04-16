@@ -68,7 +68,7 @@ def main():
             # set stock
             stock = Ticker.Ticker.AMZN
             # Set which proc to run
-            proc = PROCS.PROCS.WMA
+            proc = PROCS.PROCS.NXT_VAL
 
             def load_data():
                 all = True
@@ -106,9 +106,17 @@ def main():
             data_all = load_data()
 
             # Run selected procs...
+            if proc is PROCS.PROCS.NXT_VAL:
+                print("Apply proc: " + proc.name)
+                nr_nxt = 2
+                cont_vars = init_cont_vars()
+                p.proc_add_next_y(df=data_all, y_column="Close", number=nr_nxt, cont_vars=cont_vars)
+                p.inspect_data(data_all, cont_vars, cat_vars)
+
+            # Run selected procs...
             if proc is PROCS.PROCS.PRV_VAL:
                 print("Apply proc: " + proc.name)
-                nr_prv = 5
+                nr_prv = 3
                 cont_vars = init_cont_vars()
                 p.proc_add_previous_values(df=data_all, column_name="Close", number=nr_prv, cont_vars=cont_vars)
                 p.inspect_data(data_all, cont_vars, cat_vars)

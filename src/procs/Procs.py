@@ -679,7 +679,7 @@ def proc_add_mov_avg(df, cont_vars,
         return pd.merge(df, ma_data, on=merge_on)
 
 
-def split_data(df, split_ratio: float = 0.90, nr_valid: int = 5, vrb: bool = False):
+def split_data(df, split_ratio: float = 0.80, vrb: bool = False):
     """
     Util to split a pandas dataframe in train, test, and validation data.
 
@@ -689,26 +689,21 @@ def split_data(df, split_ratio: float = 0.90, nr_valid: int = 5, vrb: bool = Fal
     :param vrb: Verbose. False by default
     :return: train_df, test_df, valid_df
     """
-    assert (split_ratio <= 1.00)
-    assert (len(df) > nr_valid)
+    assert split_ratio <= 1.00
+    assert split_ratio > 0.00
 
-    # extract validation data
-    valid_df = df.tail(nr_valid)
-
-    # remove validation data before splitting in train & test
-    X = df.iloc[:-nr_valid]
-
+    X = df
     train_size = int(len(X) * split_ratio)
     train_df, test_df = X[0:train_size], X[train_size:len(X)]
+
     if vrb or DBG:
-        total_len = len(train_df) + len(test_df) + len(valid_df)
+        total_len = len(train_df) + len(test_df)
         print('Observations: %d' % (len(df)))
-        print("Train + Test + Valid: " + str(total_len))
+        print("Train + Test: " + str(total_len))
         print('Training data: %d' % (len(train_df)))
         print('Testing data: %d' % (len(test_df)))
-        print('Validating data: %d' % (len(valid_df)))
 
-    return train_df, test_df, valid_df
+    return train_df, test_df
 
 
 def inspect_data(data, cont_vars, cat_vars):

@@ -16,10 +16,10 @@ def main():
         key = False
         net = False
         tech = False
-        splt = False
-        DBG = True
+        splt = True
+        DBG = False
         #
-        procs = True
+        procs = False
 
         if load:
             stock = Ticker.Ticker.AMZN
@@ -300,19 +300,14 @@ def main():
 
         if splt:
             stock = Ticker.Ticker.AMZN
-            all = False
+            all = True
             print(stock.name)
             data_all, _ = n.cached_stock_loader(stock, TimeFrame.TimeFrame.DAILY, full=all)
-            print(data_all.tail(3))
 
-            # Split df_all i train, test & valid
-            train_df, test_df, valid_df = p.split_data(df=data_all,
-                                                       split_ratio=0.90,
-                                                       nr_valid=5,
-                                                       vrb=True)
-            print("Validation")
-            print(valid_df.tail(5))
+            # Split df_all in train & test
+            train_df, test_df = p.split_data(df=data_all, split_ratio=0.75, vrb=True)
 
+            print()
             print("Test")
             print(test_df.tail(3))
 

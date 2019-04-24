@@ -52,7 +52,7 @@ def proc_add_next_y(df, y_column, number, cont_vars):
     :return:
     """
     # https://riptutorial.com/pandas/example/24907/shifting-or-lagging-values-in-a-dataframe
-    c_name = "y+" + str(number)
+    c_name = "y"
     df[c_name] = df[y_column].shift(-number)
     cont_vars.append(c_name)
     return df

@@ -16,10 +16,11 @@ def main():
         key = False
         net = False
         tech = False
-        splt = True
+        splt = False
         DBG = False
         #
-        procs = False
+        procs = True
+
 
         if load:
             stock = Ticker.Ticker.AMZN
@@ -68,7 +69,7 @@ def main():
             # set stock
             stock = Ticker.Ticker.AMZN
             # Set which proc to run
-            proc = PROCS.PROCS.PRV_VAL
+            proc = PROCS.PROCS.NXT_VAL
 
             def load_data():
                 all = True

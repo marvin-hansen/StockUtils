@@ -77,12 +77,25 @@ def proc_add_percent_change(df, column_name, cont_vars):
     """ Calculates the percentage change for each value in the given column
     :param df: pandas data frame
     :param column_name: String - name of the column
-    :return: Void - modifies the frame in place
     """
-    df[column_name + '-delta'] = df[column_name] - df[column_name].shift(-1)
-    df[column_name + "-pct-chng"] = (df[column_name + "-delta"] / df[column_name]) * 100
-    cont_vars.append(column_name + '-delta')
-    cont_vars.append(column_name + "-pct-chng")
+    name = "-pct"
+    # simple daily percentage change
+    # https://subscription.packtpub.com/book/big_data_and_business_intelligence/9781787123137/15/ch15lvl1sec126/calculating-the-simple-daily-percentage-change-in-closing-price
+    df[column_name + name] = (df[column_name] / df[column_name].shift(1) - 1) * 100
+    cont_vars.append(column_name + name)
+    return df
+
+
+def proc_add_abs_percent_change(df, column_name, cont_vars):
+    """
+    :param df:
+    :param column_name:
+    :param cont_vars:
+    :return:
+    """
+    name = "-abs-pct"
+    df[column_name + name] = abs(df[column_name] / df[column_name].shift(1) - 1) * 100
+    cont_vars.append(column_name + name)
     return df
 
 

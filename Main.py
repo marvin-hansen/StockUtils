@@ -18,8 +18,8 @@ def main():
         tech = False
         splt = False
         DBG = False
-        #
         procs = True
+        proc_flow = False
 
 
         if load:
@@ -64,12 +64,16 @@ def main():
             a_key = k.set_key(KEYS.ALPHA)
             q_key = k.set_key(KEYS.QUANDL)
 
+        if proc_flow:
+            pass
+
         if procs:
 
             # set stock
             stock = Ticker.Ticker.AMZN
             # Set which proc to run
-            proc = PROCS.PROCS.NXT_VAL
+            proc = PROCS.PROCS.ABS_PRCT_CHNG
+
 
             def load_data():
                 all = True
@@ -128,6 +132,13 @@ def main():
 
                 p.proc_add_percent_change(df=data_all, column_name="Close", cont_vars=cont_vars)
                 p.inspect_data(data_all, cont_vars, cat_vars)
+
+            if proc is PROCS.PROCS.ABS_PRCT_CHNG:
+                print("Apply proc: " + proc.name)
+                cont_vars = init_cont_vars()
+                p.proc_add_abs_percent_change(df=data_all, column_name="Close", cont_vars=cont_vars)
+                p.inspect_data(data_all, cont_vars, cat_vars)
+
 
             if proc is PROCS.PROCS.MACD:
                 print("Apply proc: " + proc.name)

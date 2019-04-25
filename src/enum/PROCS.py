@@ -17,3 +17,4 @@ class PROCS(Enum):
     ADX = 10
     MACD = 11
     RSI = 12
+    ABS_PRCT_CHNG = 13

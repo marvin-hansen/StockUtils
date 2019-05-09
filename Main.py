@@ -11,52 +11,34 @@ from src.utils.KeyManager import KEYS
 
 def main():
     def run():
+        # Debug
+        DBG = False
         # set flags
-        load = False
+        load = True
         key = False
         net = False
         tech = False
         splt = False
-        DBG = False
-        procs = True
+        slide_split = False
+        procs = False
         proc_flow = False
 
 
         if load:
             stock = Ticker.Ticker.AMZN
+            all = True
+            DBG = True
 
-            def load_data():
-                all = True
-                print(stock.name)
-                if DBG: print("Loading Data for stock: " + stock.name)
-                df_all, _ = n.cached_stock_loader(stock, TimeFrame.TimeFrame.DAILY, full=all)
-                if DBG:
-                    print("Done!")
-                    print("Raw data: ")
-                    print(df_all.info())
+            if DBG: print(stock.name)
+            if DBG: print("Loading Data for stock: " + stock.name)
+            df_all, _ = n.load_data(stock, TimeFrame.TimeFrame.DAILY, full=all)
+            if DBG:
+                print("Done!")
+                print("Raw data: ")
+                print(df_all.info())
 
-                if DBG: print("Renaming columns: ")
-                df_all = p.rename_data(df_all)
-                if DBG:
-                    print("Done!")
-                    print("New columns : ")
-                    print(df_all.info())
-                # df_all.reset_index()
-
-                if DBG: print("Converging date to DateTime: ")
-
-                df_all = p.convert_date(df_all, "Date")
-                if DBG:
-                    print("Done!")
-                # df_all.reset_index()
-
-                return df_all
-
-            # n.clear_cache()
-
-            data_all = load_data()
-
-            print(data_all.info())
+                print(df_all.info())
+                print(df_all.tail(3))
 
         if key:
             # sample usage
@@ -72,7 +54,7 @@ def main():
             # set stock
             stock = Ticker.Ticker.AMZN
             # Set which proc to run
-            proc = PROCS.PROCS.ABS_PRCT_CHNG
+            proc = PROCS.PROCS.BBAND
 
 
             def load_data():
@@ -314,10 +296,10 @@ def main():
             stock = Ticker.Ticker.AMZN
             all = True
             print(stock.name)
-            data_all, _ = n.cached_stock_loader(stock, TimeFrame.TimeFrame.DAILY, full=all)
+            data_all, _ = n.load_data(stock, TimeFrame.TimeFrame.DAILY, full=all)
 
             # Split df_all in train & test
-            train_df, test_df = p.split_data(df=data_all, split_ratio=0.75, vrb=True)
+            train_df, test_df = p.split_data(df=data_all, split_ratio=0.80, vrb=True)
 
             print()
             print("Test")
@@ -328,6 +310,30 @@ def main():
 
             print("Train")
             print(train_df.tail(3))
+
+        if slide_split:
+            stock = Ticker.Ticker.AMZN
+            all = True
+            vrb = True
+            print(stock.name)
+            data_all, _ = n.load_data(stock, TimeFrame.TimeFrame.DAILY, full=all)
+
+            print(data_all.tail(3))
+
+            train_df, test_df = p.slide_split_data(df=data_all, split_ratio=0.75, vrb=vrb)
+
+            vrb = False
+            if vrb:
+                print()
+                print("Test")
+                print(test_df.tail(3))
+
+                print("Test")
+                print(test_df.head(3))
+
+                print("Train")
+                print(train_df.tail(3))
+
 
         if tech:
             stock = Ticker.Ticker.AMZN

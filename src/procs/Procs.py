@@ -719,24 +719,6 @@ def split_data(df, split_ratio: float = 0.80, vrb: bool = False):
     return train_df, test_df
 
 
-def slide_split_data(df, split_ratio: float = 0.80, vrb: bool = False):
-    assert split_ratio <= 1.00
-    assert split_ratio > 0.00
-
-    X = df
-    X['Year'] = pd.DatetimeIndex(X['Date']).year
-    # X['Month'] = pd.DatetimeIndex(X['Date']).month
-
-    print(X.head(3))
-
-    train_size = int(len(X) * split_ratio)
-    train_df, test_df = X[0:train_size], X[train_size:len(X)]
-
-    return train_df, test_df
-
-
-
-
 def inspect_data(data, cont_vars, cat_vars):
     """
     Util to inspect the pandas data frame and meta data array

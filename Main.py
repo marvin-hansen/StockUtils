@@ -14,12 +14,11 @@ def main():
         # Debug
         DBG = False
         # set flags
-        load = True
+        load = False
         key = False
         net = False
         tech = False
         splt = False
-        slide_split = False
         procs = False
         proc_flow = False
 
@@ -310,30 +309,6 @@ def main():
 
             print("Train")
             print(train_df.tail(3))
-
-        if slide_split:
-            stock = Ticker.Ticker.AMZN
-            all = True
-            vrb = True
-            print(stock.name)
-            data_all, _ = n.load_data(stock, TimeFrame.TimeFrame.DAILY, full=all)
-
-            print(data_all.tail(3))
-
-            train_df, test_df = p.slide_split_data(df=data_all, split_ratio=0.75, vrb=vrb)
-
-            vrb = False
-            if vrb:
-                print()
-                print("Test")
-                print(test_df.tail(3))
-
-                print("Test")
-                print(test_df.head(3))
-
-                print("Train")
-                print(train_df.tail(3))
-
 
         if tech:
             stock = Ticker.Ticker.AMZN

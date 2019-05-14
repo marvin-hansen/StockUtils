@@ -4,5 +4,6 @@ numpy
 alpha_vantage
 quandl
 talib
-
+pytorch
+fastai
 

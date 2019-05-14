@@ -120,6 +120,7 @@ def main():
             # y_col - The "prediction" field, or the main attrbiute. Often the "Close" price, but really can be anything
             # nr_n - A parameter to certain procs. For example, next_N takes y and n as a parameter and adds the next n instances of y
             # proc_id= the id of pre-defined ProcFlows. Currently, only 1 - 3 procs are there, but custom procs can be added
+
             data = pf.proc_switch(data=df_all, stock=stock, y_col="Close", nr_n=5, proc_id=3)
 
             if DBG:

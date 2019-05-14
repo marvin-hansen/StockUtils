@@ -2,7 +2,23 @@ from src.procs import Procs as p
 
 """
 Pre-processor-worklows (ProcFlows) simplify data pre-processing as each apply a well 
-specified formula of how to prepare the data. That allows a couple of handy things:  
+specified formula of how to prepare the data. 
+
+Usage example: 
+
+     # Create a ProcFlow
+     pf = ProcFlow(DBG)
+     # Call the selected ProcFlow with ID=3 
+     data = pf.proc_switch(data=df_all, stock=stock, y_col="Close", nr_n=5, proc_id=3)
+     # Parameters:
+     # data - data from the default data-loader. By convention, the DataLoader does column renaming
+     # stock - Stock ticker. Required to pull technical indactors that match the data for the ticker
+     # y_col - The "prediction" field, or the main attrbiute. Often the "Close" price, but really can be anything
+     # nr_n - A parameter to certain procs. For example, next_N takes y and n as a parameter and adds the next n instances of y
+     # proc_id= the id of pre-defined ProcFlows. Currently, only 1 - 3 procs are there, but custom procs can be added
+            
+
+That allows a couple of handy things:  
 
 1) Rapid experimentation 
 2) Comparision of different ProcFlows

@@ -1,0 +1,9 @@
+interface
+python-interface
+pandas
+numpy
+alpha_vantage
+quandl
+talib
+
+

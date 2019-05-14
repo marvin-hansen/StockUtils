@@ -29,7 +29,7 @@ under investigation. To do so, just copy the base_proc and add the MACD and RSI 
 in proc_01.   
 
 It is good practice to stuff every new idea in a seperate ProcFlow and then run the experiment again 
-to truly discern cause and effect. For instance, procs01 - proc03 have explored different ideas, but
+to truly measure the actual impact of each pre-processor. For instance, procs01 - proc03 have explored different ideas, but
 ultimately proc_03 improved the model accurcay in the most in a series of experiments. 
 The dozen or so intermediate steps have been removed for brevity reasons. However, the main take aways from
 the experiments are

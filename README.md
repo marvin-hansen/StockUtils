@@ -41,9 +41,30 @@ Sample code in the main file.
 1) Cached DataLoader 
 2) Various data-preprocessors (procs) 
 3) Various technical indicators (from AlphaVantage) 
+4) Data splitting (train & test)
+5) ProcFlow 
 
 
-The default cachedNetLoader fetches data from AlphaVantage, stores them locally in a CSV file, and returns a pandas dataframe so that a  developer does not have to deal with JSON at all.  Proc's do a myriad of transformations or feature generators to the loaded data. 
+## Cached DataLoader
+
+The default cachedNetLoader fetches data from the web, stores them locally in a CSV file, and returns a pandas dataframe so that a  developer does not have to deal with JSON at all.  Proc's do a myriad of transformations or feature generators to the loaded data.
+The DataLoader interface can be implemented for any other data provider. A stub for Quandl is there 
+and a complete implementation for AlphaVantage is there.  
+
+
+
+## Procs & ProcFlow 
+
+Procs are data pre-processors with each doing exactly one thing only, for instance adding percentage change 
+or adding simple moving average. A number of procs have been implemented in the utils. For details, inspect the source.procs folder.
+Many procs can be daisy chained and isolated in a single workflow, so called ProcFlows.
+
+Pre-processor-worklows (ProcFlows) simplify data pre-processing as each apply a well 
+specified formula of how to prepare the data. The proc_switch allows easy switching between
+ProcFlows as to compare different ProcFlows on the same data or as to apply the same ProcFlow on different data. 
+It is good practice to stuff every new idea in a seperate ProcFlow and then run the experiment again 
+to truly measure the actual impact of each pre-processor. 
+
 
 
 Transformational procs: 
@@ -54,7 +75,7 @@ Transformational procs:
 * Convert date (from object to DateTime) 
 * Categorify Date 
 
-Categorify Date requires fast.ai 1.0.5 and it splits a (continoius) DateTime value into corresponding categorial values to capture trends, time-patterns, and cycles. 
+Categorify Date requires fast.ai 1.0.5 and transforms DateTime value into corresponding categorial values to capture trends, time-patterns, and cycles. 
 
 Feature generator procs: 
 

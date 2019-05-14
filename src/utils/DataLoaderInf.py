@@ -1,20 +1,25 @@
-import interface
+from abc import ABC, abstractmethod
 
 from src.enum import INTERVAL
 from src.enum import Ticker
 from src.enum import TimeFrame
 
 
-class DataLoaderInf(interface.Interface):
+class DataLoaderInf(ABC):
     """
-    Interface to specify generic DataLoading functionality. Implementations can implemented
+    Abstract Base Class (ABC)Interface to specify generic DataLoading functionality. Implementations can implemented
     other interfaces to add more specified functionality or add more unspecified functions.
     """
 
-    def __init__(self, api_key: str):
-        assert isinstance(api_key, str)
-        self.API_KEY: str = api_key
+    @abstractmethod
+    def __init__(self, api_key: str, dbg: bool):
 
+        assert isinstance(api_key, str)
+        assert isinstance(dbg, bool)
+        self.API_KEY: str = api_key
+        self.DBG: bool = dbg
+
+    @abstractmethod
     def load_local_data(self, path: str, vrb: bool):
         """
         Loads data from local path.
@@ -25,6 +30,7 @@ class DataLoaderInf(interface.Interface):
         """
         pass
 
+    @abstractmethod
     def load_web_data(self, stock: Ticker.Ticker, time_frame: TimeFrame.TimeFrame, full: bool, vrb: bool):
         """
         Data loader that returns the last 100 days of data for the given stock on the given time frame

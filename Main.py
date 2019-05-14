@@ -101,9 +101,6 @@ def main():
                 print(df_all.info())
                 print(df_all.tail(3))
 
-
-
-
         if key:
             # sample usage
             print("Loading keys from files...")

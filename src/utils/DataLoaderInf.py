@@ -11,7 +11,6 @@ class DataLoaderInf(ABC):
     other interfaces to add more specified functionality or add more unspecified functions.
     """
 
-    @abstractmethod
     def __init__(self, api_key: str, dbg: bool):
 
         assert isinstance(api_key, str)

@@ -4,11 +4,13 @@ from src.enum import TECHIND
 from src.enum import Ticker
 from src.enum import TimeFrame
 from src.procs import Procs as p
+from src.procs.ProcFlow import ProcFlow 
 from src.utils import KeyManager as k
 from src.utils import TechInd as t
 from src.utils.AlphaDataLoader import AlphaDataLoader
 from src.utils.CachedNetLoader import CachedNetLoader
 from src.utils.KeyManager import KEYS
+
 
 
 def main():
@@ -108,6 +110,25 @@ def main():
             if DBG: print(stock.name)
             if DBG: print("Loading Data for stock: " + stock.name)
             df_all = n.load_data(stock, TimeFrame.TimeFrame.DAILY, full=all)
+
+            # Create a ProcFlow
+            pf = ProcFlow(DBG)
+
+            if DBG: print("Applying pre-processor on: " + stock.name)
+            # data - data from the default data-loader. By convention, the DataLoader does column renaming
+            # stock - Stock ticker. Required to pull technical indactors that match the data for the ticker
+            # y_col - The "prediction" field, or the main attrbiute. Often the "Close" price, but really can be anything
+            # nr_n - A parameter to certain procs. For example, next_N takes y and n as a parameter and adds the next n instances of y
+            # proc_id= the id of pre-defined ProcFlows. Currently, only 1 - 3 procs are there, but custom procs can be added
+            data = pf.proc_switch(data=df_all, stock=stock, y_col="Close", nr_n=5, proc_id=3)
+
+            if DBG:
+                print("Done!")
+                print("Raw data: ")
+                print(df_all.info())
+                print(df_all.info())
+                print(df_all.tail(3))
+
 
 
 

@@ -19,12 +19,13 @@ The dozen or so intermediate steps have been removed for brevity reasons. Howeve
 the experiments are
 
 1) Fully Connected Network with AutoEncoders outperforms LSTM / RNN 
-2) Few technical indicators improve model accurcay. There are:
+
+2) Only few technical indicators improved model accurcay:
 * WMA 20
 * WMA 60 
 * SMA 20
 * SMA 200 
-* Bollinger Bands  
+* Bollinger Bands
 * Momentum & Change in momentum 
 
 3) Those few indicators above that actually work, all perform better when 
@@ -86,19 +87,19 @@ class ProcFlow():
     def __init__(self, dbg):
         self.DBG = dbg
 
-    def proc_switch(self, data, stock, y_col="", nr_nxt=1, proc_id=1):
+    def proc_switch(self, data, stock, y_col="", nr_n=5, proc_id=1):
 
         if proc_id == 1:
-            return self.proc_01(data, stock, y_col, nr_n=nr_nxt)
+            return self.proc_01(data, stock, y_col, nr_n=nr_n)
 
         if proc_id == 2:
-            return self.proc_02(data, stock, y_col, nr_n=nr_nxt)
+            return self.proc_02(data, stock, y_col, nr_n=nr_n)
 
         if proc_id == 3:
-            return self.proc_03(data, stock, y_col, nr_n=nr_nxt)
+            return self.proc_03(data, stock, y_col, nr_n=nr_n)
 
         # if proc_id == 4:
-        #    return self.proc_04(data, stock, y_col, nr_n=nr_nxt)
+        #    return self.proc_04(data, stock, y_col, nr_n=nr_n)
 
         else:
             print("No matching proc ID found")

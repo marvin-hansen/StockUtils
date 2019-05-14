@@ -92,19 +92,18 @@ class CachedNetLoader:
 
         if time_frame is TimeFrame.TimeFrame.DAILY:
             data, _ = self.cc.get_digital_currency_daily(symbol=crypto_symbol, market=market)
-            return p.rename_data(data, crypto=True)
-
+            return data
         if time_frame is TimeFrame.TimeFrame.WEEKLY:
             data, _ = self.cc.get_digital_currency_weekly(symbol=crypto_symbol, market=market)
-            return p.rename_data(data, crypto=True)
+            return data
 
         if time_frame is TimeFrame.TimeFrame.MONTHLY:
             data, _ = self.cc.get_digital_currency_monthly(symbol=crypto_symbol, market=market)
-            return p.rename_data(data, crypto=True)
+            return data
 
     def load_intraday_crypto(self, crypto_symbol: str, market: str):
         data, _ = self.cc.get_digital_currency_intraday(symbol=crypto_symbol, market=market)
-        return p.rename_data(data, crypto=True)
+        return data
 
     def cached_stock_loader(self, stock: Ticker, period: TimeFrame = TimeFrame.TimeFrame.DAILY, full: bool = False):
         """

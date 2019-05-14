@@ -27,6 +27,7 @@ def proc_close_only(df, cont_vars):
 def proc_add_datepart(df, cont_vars, cat_vars, date_col_name: str = "Date"):
     """
     Categorifies date field
+    :param date_col_name:
     :param df: pandas data frame
     :param cont_vars: continous meta data
     :param cat_vars: categorial meta data
@@ -698,7 +699,6 @@ def split_data(df, split_ratio: float = 0.80, vrb: bool = False):
 
     :param df: pandas data frame
     :param split_ratio: ratio between train & test
-    :param nr_valid: number of validation data to exclude from train & test. Set to 5 by default.
     :param vrb: Verbose. False by default
     :return: train_df, test_df, valid_df
     """
@@ -741,7 +741,7 @@ def inspect_data(data, cont_vars, cat_vars):
     print(data.tail(n))
 
 
-def rename_data(data):
+def rename_data(data, crypto: bool = False):
     """
     :param data:
     :return:
@@ -752,6 +752,9 @@ def rename_data(data):
     data = __rename_column(data, "3. low", 'Low')
     data = __rename_column(data, "4. close", 'Close')
     data = __rename_column(data, "5. volume", 'Volume')
+    if crypto:
+        data = __rename_column(data, "6. market cap (USD)", 'Market Cap')
+
     return data
 
 

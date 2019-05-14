@@ -1,22 +1,28 @@
+from src.enum import INTERVAL
 from src.enum import PROCS
 from src.enum import TECHIND
 from src.enum import Ticker
 from src.enum import TimeFrame
 from src.procs import Procs as p
 from src.utils import KeyManager as k
-from src.utils import Net as n
 from src.utils import TechInd as t
+from src.utils.AlphaDataLoader import AlphaDataLoader
+from src.utils.CachedNetLoader import CachedNetLoader
 from src.utils.KeyManager import KEYS
 
 
 def main():
     def run():
         # Debug
-        DBG = False
+        DBG = True
+        # Default data loader
+        KEY = k.set_key(KEYS.ALPHA)
+        n = CachedNetLoader(KEY, DBG)
         # set flags
         load = False
+        load_intra_day = False
+        alpha_loader = True
         key = False
-        net = False
         tech = False
         splt = False
         procs = False
@@ -30,7 +36,22 @@ def main():
 
             if DBG: print(stock.name)
             if DBG: print("Loading Data for stock: " + stock.name)
-            df_all, _ = n.load_data(stock, TimeFrame.TimeFrame.DAILY, full=all)
+            df_all = n.load_data(stock, TimeFrame.TimeFrame.DAILY, full=all)
+            if DBG:
+                print("Done!")
+                print("Raw data: ")
+                print(df_all.info())
+                print(df_all.info())
+                print(df_all.tail(3))
+
+        if load_intra_day:
+
+            stock = Ticker.Ticker.AMZN
+            DBG = True
+
+            if DBG: print(stock.name)
+            if DBG: print("Loading Data for stock: " + stock.name)
+            df_all = n.load_intraday_data(stock, INTERVAL.INTERVAL.FIVE_MIN, full=False, vrb=True)
             if DBG:
                 print("Done!")
                 print("Raw data: ")
@@ -38,6 +59,50 @@ def main():
 
                 print(df_all.info())
                 print(df_all.tail(3))
+
+        if alpha_loader:
+            stock = Ticker.Ticker.AAPL
+            DBG = True
+            all = True
+
+            n = AlphaDataLoader(api_key=KEY, dbg=DBG)
+
+            if DBG: print(stock.name)
+            if DBG: print("Loading Daily Close Data for stock: " + stock.name)
+            df_all = n.load_web_data(stock, TimeFrame.TimeFrame.DAILY, full=all, vrb=DBG)
+            if DBG:
+                print("Done!")
+                print("Raw data: ")
+                print(df_all.info())
+                print(df_all.info())
+                print(df_all.tail(3))
+
+            if DBG: print(stock.name)
+            if DBG: print("Loading Intradeday Data for stock: " + stock.name)
+            df_all = n.load_intraday_data(stock, INTERVAL.INTERVAL.FIVE_MIN, full=False, vrb=True)
+            if DBG:
+                print("Done!")
+                print("Raw data: ")
+                print(df_all.info())
+                print(df_all.info())
+                print(df_all.tail(3))
+
+            crypto_symbol: str = "BTC"
+            market: str = "CNY"
+
+            if DBG: print(crypto_symbol)
+            if DBG: print("Loading Closing price Data for : " + crypto_symbol)
+            df_all = n.load_crypto_data(crypto_symbol=crypto_symbol, time_frame=TimeFrame.TimeFrame.DAILY,
+                                        market=market)
+            if DBG:
+                print("Done!")
+                print("Raw data: ")
+                print(df_all.info())
+                print(df_all.info())
+                print(df_all.tail(3))
+
+
+
 
         if key:
             # sample usage
@@ -52,6 +117,7 @@ def main():
 
             # set stock
             stock = Ticker.Ticker.AMZN
+
             # Set which proc to run
             proc = PROCS.PROCS.BBAND
 
@@ -283,19 +349,11 @@ def main():
                                                        add_ohlc_diff=True)
                 p.inspect_data(data_wma, cont_vars, cat_vars)
 
-        if net:
-            stock = Ticker.Ticker.AMZN
-            all = False
-            print(stock.name)
-            data_all, _ = n.cached_stock_loader(stock, TimeFrame.TimeFrame.DAILY, full=all)
-            print(data_all.tail(3))
-            # print(df_all.tail(3))
-
         if splt:
             stock = Ticker.Ticker.AMZN
             all = True
             print(stock.name)
-            data_all, _ = n.load_data(stock, TimeFrame.TimeFrame.DAILY, full=all)
+            data_all = n.load_data(stock, TimeFrame.TimeFrame.DAILY, full=all)
 
             # Split df_all in train & test
             train_df, test_df = p.split_data(df=data_all, split_ratio=0.80, vrb=True)

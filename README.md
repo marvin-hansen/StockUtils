@@ -31,9 +31,7 @@ or when a very specific indicator or chart patterns is needed.
 ```
 
 
-## Import 
-
-@TODO: Update ReadMe 
+## Getting started
 
 Sample code in the main file. 
 
@@ -45,10 +43,12 @@ Sample code in the main file.
 3) Various technical indicators (from AlphaVantage) 
 
 
-The cached DataLoader fetches data from AlphaVantage, stores them locally in a CSV file, and returns a pandas dataframe so that a  developer does not have to deal with JSON at all.  Proc's do a myriad of transformations or feature generators to the loaded data. 
+The default cachedNetLoader fetches data from AlphaVantage, stores them locally in a CSV file, and returns a pandas dataframe so that a  developer does not have to deal with JSON at all.  Proc's do a myriad of transformations or feature generators to the loaded data. 
+
 
 Transformational procs: 
 
+* Split data in train & test 
 * Rename column 
 * Delete column 
 * Convert date (from object to DateTime) 

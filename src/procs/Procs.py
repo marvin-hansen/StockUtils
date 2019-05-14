@@ -34,7 +34,7 @@ def proc_add_datepart(df, cont_vars, cat_vars, date_col_name: str = "Date"):
     :return: pandas data frame with date categories
     """
     # requires fast.ai install
-    # add_datepart(df, date_col_name, drop=False)
+    add_datepart(df, date_col_name, drop=False)
     cont_vars.append("Elapsed")
     column_names = df.columns.values.tolist()
     start = column_names.index("Year")

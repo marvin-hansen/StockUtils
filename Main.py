@@ -28,7 +28,6 @@ def main():
         procs = False
         proc_flow = False
 
-
         if load:
             stock = Ticker.Ticker.AMZN
             all = True
@@ -101,14 +100,23 @@ def main():
                 print(df_all.info())
                 print(df_all.tail(3))
 
+        if proc_flow:
+            stock = Ticker.Ticker.GOOGL
+            all = True
+            DBG = True
+
+            if DBG: print(stock.name)
+            if DBG: print("Loading Data for stock: " + stock.name)
+            df_all = n.load_data(stock, TimeFrame.TimeFrame.DAILY, full=all)
+
+
+
+
         if key:
             # sample usage
             print("Loading keys from files...")
             a_key = k.set_key(KEYS.ALPHA)
             q_key = k.set_key(KEYS.QUANDL)
-
-        if proc_flow:
-            pass
 
         if procs:
 

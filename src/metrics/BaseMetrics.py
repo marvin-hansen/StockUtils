@@ -3,6 +3,10 @@ import numpy as np
 from src.procs.OnlineVariance import OnlineVariance
 
 
+# Volatility And Measures Of Risk-Adjusted Return With Python
+# https://www.quantinsti.com/blog/volatility-and-measures-of-risk-adjusted-return-based-on-volatility
+
+
 class BaseMetrics:
     def __init__(self):
         self.ov = OnlineVariance()
@@ -25,10 +29,35 @@ class BaseMetrics:
 
         return df
 
+    def daily_volatility(self, df, column_name: str = "Close", nr_days=255):
+        """
+      Computes daily volatility for the given column using the Welford's method
+
+      :param df: pandas data frame
+      :param column_name:
+      :param nr_days: number of days to include in rolling calculatin. Defauls 1 year (255 days)
+      :return: pandas data frame
+        """
+        # name of the new column
+        name = column_name + "-volatility"
+
+        for n in range(nr_days):
+            self.ov.include(df[column_name].shift(n))
+
+        df[name] = self.ov.std
+
+        return df
+
     def sharpe_ratio(self, returns, risk_free_rate=2.0, days=255):
         """
-
         Sharpe ratio is a measure for calculating risk adjusted return.
+        The Sharpe ratio indicates how well an equity investment performs in comparison
+        to the rate of return on a risk-free investment, such as U.S. government treasury bonds or bills.
+
+        Any Sharpe ratio greater than 1.0 is considered acceptable to good by investors
+        A ratio higher than 2.0 is rated as very good
+        A ratio of 3.0 or higher is considered excellent.
+        A ratio under 1.0 is considered sub-optimal.
 
         :param returns:
         :param risk_free_rate:
@@ -71,3 +100,37 @@ class BaseMetrics:
         benchmark_volatility = benchmark_returns.std() * np.sqrt(days)
         m2_ratio = (sharpe_ratio * benchmark_volatility) + rf
         return m2_ratio
+
+
+def f1_score(y_true, y_pred):
+    """
+    The F1 score can be interpreted as a weighted average of the precision and recall,
+    where an F1 score reaches its best value at 1 and worst score at 0.
+    The relative contribution of precision and recall to the F1 score are equal.
+
+    The formula for the F1 score is:
+
+    F1 = 2 * (precision * recall) / (precision + recall)
+
+    :param y_true: Ground truth (correct) target values.
+    :param y_pred: Estimated targets as returned by a classifier.
+
+    :return: f1_score : float
+    """
+
+    y_true = set(y_true)
+    y_pred = set(y_pred)
+
+    tp = len(y_true & y_pred)
+    fp = len(y_pred) - tp
+    fn = len(y_true) - tp
+
+    if tp > 0:
+        # precision =  tp / (tp + fp)
+        precision = float(tp) / (tp + fp)
+        # recall =  tp / (tp + fn)
+        recall = float(tp) / (tp + fn)
+        # f1 = 2 tp / (2 tp + fp + fn)
+        return 2 * ((precision * recall) / (precision + recall))
+    else:
+        return 0

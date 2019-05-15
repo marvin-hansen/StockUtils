@@ -177,7 +177,7 @@ def proc_add_direction(df, column_name, cat_vars, cont_vars):
 
 def proc_add_volatility(df, column_name, cont_vars, nr_days=255):
     """
-    Computes for the given column volatility using the Welford's method
+    Computes daily volatility for the given column using the Welford's method
 
     :param df: pandas data frame
     :param column_name:

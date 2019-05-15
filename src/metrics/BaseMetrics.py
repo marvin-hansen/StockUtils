@@ -85,52 +85,59 @@ class BaseMetrics:
         information_ratio = return_difference.mean() / volatility
         return information_ratio
 
-    def m2_ratio(self, returns, benchmark_returns, rf, days=255):
+    def m2_ratio(self, returns, benchmark_returns, risk_free_rate=2.0, days=255):
         """
         The Modigliani (M2) ratio measures the returns of the portfolio,
         adjusted for the risk of the portfolio relative to that of some benchmark
         :param returns:
         :param benchmark_returns:
-        :param rf:
+        :param risk_free_rate:
         :param days:
         :return:
         """
         volatility = returns.std() * np.sqrt(days)
-        sharpe_ratio = (returns.mean() - rf) / volatility
+        sharpe_ratio = (returns.mean() - risk_free_rate) / volatility
         benchmark_volatility = benchmark_returns.std() * np.sqrt(days)
-        m2_ratio = (sharpe_ratio * benchmark_volatility) + rf
+        m2_ratio = (sharpe_ratio * benchmark_volatility) + risk_free_rate
         return m2_ratio
 
+    def f1_score(self, y_true: list, y_pred: list):
+        """
+        The F1 score can be interpreted as a weighted average of the precision and recall,
+        where an F1 score reaches its best value at 1 and worst score at 0.
 
-def f1_score(y_true, y_pred):
-    """
-    The F1 score can be interpreted as a weighted average of the precision and recall,
-    where an F1 score reaches its best value at 1 and worst score at 0.
-    The relative contribution of precision and recall to the F1 score are equal.
+        The F1 score formula:
 
-    The formula for the F1 score is:
+        F1 = 2 * (precision * recall) / (precision + recall)
 
-    F1 = 2 * (precision * recall) / (precision + recall)
+        The relative contribution of precision and recall to the F1 score are equal.
+        Precision measures the ability of the classifier not to label as positive a sample that is negative.
+        Recall measures the ability of the classifier to find all the positive samples.
 
-    :param y_true: Ground truth (correct) target values.
-    :param y_pred: Estimated targets as returned by a classifier.
+        A higher F1-Score means:
+        1) The classifier finds what it should find
+        2) The classifier leaves out what it should leave out
+        3) Overall accuracy and reliability of the classifier increases with its F1 score
 
-    :return: f1_score : float
-    """
+        :param y_true: Ground truth (correct) target values.
+        :param y_pred: Estimated targets as returned by a classifier.
 
-    y_true = set(y_true)
-    y_pred = set(y_pred)
+        :return: f1_score : float
+        """
 
-    tp = len(y_true & y_pred)
-    fp = len(y_pred) - tp
-    fn = len(y_true) - tp
+        y_true = set(y_true)
+        y_pred = set(y_pred)
 
-    if tp > 0:
-        # precision =  tp / (tp + fp)
-        precision = float(tp) / (tp + fp)
-        # recall =  tp / (tp + fn)
-        recall = float(tp) / (tp + fn)
-        # f1 = 2 tp / (2 tp + fp + fn)
-        return 2 * ((precision * recall) / (precision + recall))
-    else:
-        return 0
+        tp = len(y_true & y_pred)
+        fp = len(y_pred) - tp
+        fn = len(y_true) - tp
+
+        if tp > 0:
+            # precision =  tp / (tp + fp)
+            precision = float(tp) / (tp + fp)
+            # recall =  tp / (tp + fn)
+            recall = float(tp) / (tp + fn)
+            # f1 = 2 tp / (2 tp + fp + fn)
+            return 2 * ((precision * recall) / (precision + recall))
+        else:
+            return 0

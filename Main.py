@@ -3,8 +3,9 @@ from src.enum import PROCS
 from src.enum import TECHIND
 from src.enum import Ticker
 from src.enum import TimeFrame
+from src.metrics.BaseMetrics import BaseMetrics
 from src.procs import Procs as p
-from src.procs.ProcFlow import ProcFlow 
+from src.procs.ProcFlow import ProcFlow
 from src.utils import KeyManager as k
 from src.utils import TechInd as t
 from src.utils.AlphaDataLoader import AlphaDataLoader
@@ -20,7 +21,8 @@ def main():
         KEY = k.set_key(KEYS.ALPHA)
         n = CachedNetLoader(KEY, DBG)
         # set flags
-        inspect = True
+        metrics = False
+        inspect = False
         load = False
         load_intra_day = False
         alpha_loader = False
@@ -29,6 +31,28 @@ def main():
         splt = False
         procs = False
         proc_flow = False
+
+        if metrics:
+            stock = Ticker.Ticker.AMZN
+            all = True
+            DBG = True
+
+            if DBG: print("Loading Data for stock: " + stock.name)
+            df_all = n.load_data(stock, TimeFrame.TimeFrame.DAILY, full=all)
+
+            # Create a ProcFlow
+            pf = ProcFlow(DBG)
+
+            proc = 4
+            if DBG: print("Applying pre-processor: ", proc, "on stock: " + stock.name)
+            df_all = pf.proc_switch(data=df_all, stock=stock, y_col="Close", nr_n=5, proc_id=proc)
+
+            # Create a BaseMetric
+            m = BaseMetrics()
+
+
+
+
 
         if inspect:
             stock = Ticker.Ticker.AMZN

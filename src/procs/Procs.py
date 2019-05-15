@@ -1,7 +1,9 @@
+import numpy as np
 import pandas as pd
 
 from src.enum import TECHIND
 from src.enum import Ticker
+from src.procs.OnlineVariance import OnlineVariance
 from src.utils import TechInd as t
 
 DBG = False
@@ -138,15 +140,18 @@ def proc_add_direction(df, column_name, cat_vars, cont_vars):
     bottom_quantile = df[target].quantile(0.25)
     # 75 th percentile = 75% of a values fall below this one
     top_quantile = df[target].quantile(0.75)
-    # 90 th percentile = Top 10% of a values
-    top_ten_quantile = df[target].quantile(0.90)
+    # 85 th percentile = 75% of a values fall below this one
+    top_fifteen_quantile = df[target].quantile(0.85)
+    # 95 th percentile = Top 10% of a values
+    top_five_quantile = df[target].quantile(0.95)
 
     # Direction categories, encoded as integers
     SKYFALL = -7
     STRONG_DOWN = -3
     DOWN = -1
     UP = 1
-    STRONG_UP = 3
+    MORE_UP = 3
+    STRONG_UP = 5
     SKY_UP = 7
 
     # SKYFALL = percentage change falls below the bottom 10%
@@ -158,12 +163,45 @@ def proc_add_direction(df, column_name, cat_vars, cont_vars):
     #
     # UP = percentage change is positive but below the 75% percentile
     df.loc[(df[target] > 0) & (df[target] < top_quantile), column_name + name] = UP
-    # STRONG_UP = percentage change is above the 75% percentile but below the top 10%
-    df.loc[(df[target] > top_quantile) & (df[target] < top_ten_quantile), column_name + name] = STRONG_UP
-    # SKY_UP = percentage change is above the top 10%
-    df.loc[(df[target] > top_ten_quantile), column_name + name] = SKY_UP
+    # MORE_UP = percentage change is above the 75% percentile but below the top 15%
+    df.loc[(df[target] > top_quantile) & (df[target] < top_fifteen_quantile), column_name + name] = MORE_UP
+    # MORE_UP = percentage change is above the 85% percentile but below the top 5%
+    df.loc[(df[target] > top_fifteen_quantile) & (df[target] < top_five_quantile), column_name + name] = STRONG_UP
+    # SKY_UP = percentage change is above the top 5%
+    df.loc[(df[target] > top_five_quantile), column_name + name] = SKY_UP
 
     cat_vars.append(column_name + name)
+
+    return df
+
+
+def proc_add_volatility(df, column_name, cont_vars, nr_days=255):
+    """
+    Computes for the given column volatility using the Welford's method
+
+    :param df: pandas data frame
+    :param column_name:
+    :param cont_vars: meta data
+    :param nr_days: number of days to include in rolling calculatin. Defauls 1 year (255 days)
+    :return: pandas data frame
+    """
+
+    # name postfix of the new column
+    name = column_name + "-volatility"
+
+    lr = "Log_Ret"
+    # Compute the logarithmic returns using the Closing price
+    df[lr] = np.log(df['Close'] / df['Close'].shift(1))
+
+    # Compute Volatility using the Welford's method
+
+    ov = OnlineVariance()
+    for n in range(nr_days):
+        ov.include(df[column_name].shift(n))
+
+    df[name] = ov.std
+
+    cont_vars.append(name)
 
     return df
 

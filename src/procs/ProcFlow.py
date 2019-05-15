@@ -293,4 +293,6 @@ class ProcFlow():
 
         data = p.proc_add_direction(df=data, column_name="MOM", cat_vars=cat_vars, cont_vars=cont_vars)
 
+        data = p.proc_add_volatility(df=data, column_name=y_col, cont_vars=cont_vars)
+
         return data

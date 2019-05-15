@@ -53,7 +53,7 @@ def main():
 
             print(df_all.info())
 
-            print(df_all.tail(50))
+            print(df_all.tail(5))
 
             DBG = False
             if DBG:

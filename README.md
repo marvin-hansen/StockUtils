@@ -59,12 +59,16 @@ Procs are data pre-processors with each doing exactly one thing only, for instan
 or adding simple moving average. A number of procs have been implemented in the utils. For details, inspect the source.procs folder.
 Many procs can be daisy chained and isolated in a single workflow, so called ProcFlows.
 
-Pre-processor-worklows (ProcFlows) simplify data pre-processing as each apply a well 
+Pre-processor-worklows, ProcFlows, simplify data pre-processing as each apply a well 
 specified formula of how to prepare the data. The proc_switch allows easy switching between
 ProcFlows as to compare different ProcFlows on the same data or as to apply the same ProcFlow on different data. 
 It is good practice to stuff every new idea in a seperate ProcFlow and then run the experiment again 
 to truly measure the actual impact of each pre-processor. 
 
+Files to get started with ProcFlow:
+* [Main](https://github.com/marvin-hansen/StockUtils/blob/master/Main.py)
+* [ProcFlow](https://github.com/marvin-hansen/StockUtils/blob/master/src/procs/ProcFlow.py)
+* [Procs](https://github.com/marvin-hansen/StockUtils/blob/master/src/procs/Procs.py)
 
 
 Transformational procs: 

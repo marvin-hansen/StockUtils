@@ -12,25 +12,25 @@ from src.utils.CachedNetLoader import CachedNetLoader
 from src.utils.KeyManager import KEYS
 
 
-
 def main():
     def run():
         # Debug
-        DBG = True
+        DBG = False
         # Default data loader
         KEY = k.set_key(KEYS.ALPHA)
         n = CachedNetLoader(KEY, DBG)
         # set flags
+        inspect = True
         load = False
         load_intra_day = False
-        alpha_loader = True
+        alpha_loader = False
         key = False
         tech = False
         splt = False
         procs = False
         proc_flow = False
 
-        if load:
+        if inspect:
             stock = Ticker.Ticker.AMZN
             all = True
             DBG = True
@@ -38,12 +38,54 @@ def main():
             if DBG: print(stock.name)
             if DBG: print("Loading Data for stock: " + stock.name)
             df_all = n.load_data(stock, TimeFrame.TimeFrame.DAILY, full=all)
+
+            # Create a ProcFlow
+            pf = ProcFlow(DBG)
+
+            proc = 4
+            if DBG: print("Applying pre-processor: ", proc, "on stock: " + stock.name)
+            df_all = pf.proc_switch(data=df_all, stock=stock, y_col="Close", nr_n=5, proc_id=proc)
+
+            # inspect a single column
+            # column_name =  "Close-pct"
+            # if DBG: print("Extracting coloum: ", column_name)
+            # df_col = df_all[column_name]
+
+            print(df_all.info())
+
+            print(df_all.tail(50))
+
+            DBG = False
             if DBG:
                 print("Done!")
                 print("Raw data: ")
                 print(df_all.info())
-                print(df_all.info())
+                print("Sample data: ")
                 print(df_all.tail(3))
+                print("Describing data: ")
+                print(df_all.describe())
+
+
+
+        if load:
+            stock = Ticker.Ticker.AMZN
+            all = True
+            DBG = False
+
+            if DBG: print(stock.name)
+            if DBG: print("Loading Data for stock: " + stock.name)
+            df_all = n.load_data(stock, TimeFrame.TimeFrame.DAILY, full=all)
+
+            if DBG:
+                print("Done!")
+                print("Raw data: ")
+                print(df_all.info())
+                print("Sample data: ")
+                print(df_all.tail(3))
+                print("Describing data: ")
+                print(df_all.describe())
+
+
 
         if load_intra_day:
 

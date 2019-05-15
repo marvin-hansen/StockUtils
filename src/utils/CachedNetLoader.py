@@ -16,7 +16,7 @@ from src.procs import Procs as p
 
 
 class CachedNetLoader:
-    def __init__(self, api_key: str, dbg: bool):
+    def __init__(self, api_key: str, dbg: bool = False):
         # set key
         self.API_KEY = api_key
         self.cc = CryptoCurrencies(key=self.API_KEY, output_format='pandas')

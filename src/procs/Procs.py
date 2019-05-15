@@ -34,7 +34,7 @@ def proc_add_datepart(df, cont_vars, cat_vars, date_col_name: str = "Date"):
     :return: pandas data frame with date categories
     """
     # requires fast.ai install
-    add_datepart(df, date_col_name, drop=False)
+    # add_datepart(df, date_col_name, drop=False)
     cont_vars.append("Elapsed")
     column_names = df.columns.values.tolist()
     start = column_names.index("Year")
@@ -72,6 +72,7 @@ def proc_add_previous_values(df, column_name, number, cont_vars):
     for n in range(1, (number + 1)):
         df[column_name + str("-") + str(n)] = df[column_name].shift(n)
         cont_vars.append(column_name + str("-") + str(n))
+    return df
 
 
 def proc_add_percent_change(df, column_name, cont_vars):
@@ -97,6 +98,73 @@ def proc_add_abs_percent_change(df, column_name, cont_vars):
     name = "-abs-pct"
     df[column_name + name] = abs(df[column_name] / df[column_name].shift(1) - 1) * 100
     cont_vars.append(column_name + name)
+    return df
+
+
+def proc_add_direction(df, column_name, cat_vars, cont_vars):
+    """
+
+    Adds the following direction categories, encoded as integers, in a seperate column:
+
+    STRONG_DOWN = -3 # percentage change falls below the bottom 25%
+    DOWN = -1        # percentage change is negative but still above the bottom 25%
+    UP = 1           # percentage change is positive but below the 75% percentile
+    STRONG_UP = 3    # percentage change is above the 75% percentile but below the top 10%
+    SKY_UP = 7       # percentage change is above the top 10%
+
+    The column containing percentage change (from the matching proc) will be added
+    automatically in case it is missing.
+
+    :param df: pandas dataframe
+    :param column_name: Name of the column from which the direction should be calculated
+    :param cont_vars: continous meta data
+    :param cat_vars: categorial meta data
+    :return: pandas data frame with a new column, -direction
+    """
+    # name postfix of the new column
+    name = "-direction"
+    # name of the target column from which to calculate the direction move
+    target = column_name + "-pct"
+
+    # check if target column is in the data frame, if not add it
+    if target not in df.columns.values.tolist():
+        df = proc_add_percent_change(df=df, column_name=column_name, cont_vars=cont_vars)
+
+    # percentile values of given column
+    # https://stackoverflow.com/questions/39581893/pandas-find-percentile-stats-of-a-given-column
+    # 10 th percentile = 10% of a values fall below this one
+    lowest_ten_quantile = df[target].quantile(0.10)
+    # 25 th percentile = 25% of a values fall below this one
+    bottom_quantile = df[target].quantile(0.25)
+    # 75 th percentile = 75% of a values fall below this one
+    top_quantile = df[target].quantile(0.75)
+    # 90 th percentile = Top 10% of a values
+    top_ten_quantile = df[target].quantile(0.90)
+
+    # Direction categories, encoded as integers
+    SKYFALL = -7
+    STRONG_DOWN = -3
+    DOWN = -1
+    UP = 1
+    STRONG_UP = 3
+    SKY_UP = 7
+
+    # SKYFALL = percentage change falls below the bottom 10%
+    df.loc[(df[target] < lowest_ten_quantile), column_name + name] = SKYFALL
+    # STRONG_DOWN = percentage change falls below the bottom 25% but stays above the lowest 10%
+    df.loc[(df[target] < bottom_quantile) & (df[target] > lowest_ten_quantile), column_name + name] = STRONG_DOWN
+    # DOWN = percentage change is negative but still above the bottom 25%
+    df.loc[(df[target] < 0) & (df[target] > bottom_quantile), column_name + name] = DOWN
+    #
+    # UP = percentage change is positive but below the 75% percentile
+    df.loc[(df[target] > 0) & (df[target] < top_quantile), column_name + name] = UP
+    # STRONG_UP = percentage change is above the 75% percentile but below the top 10%
+    df.loc[(df[target] > top_quantile) & (df[target] < top_ten_quantile), column_name + name] = STRONG_UP
+    # SKY_UP = percentage change is above the top 10%
+    df.loc[(df[target] > top_ten_quantile), column_name + name] = SKY_UP
+
+    cat_vars.append(column_name + name)
+
     return df
 
 
@@ -409,7 +477,6 @@ def proc_add_wma5_wma_20_diff(df, cont_vars, stock: Ticker, add_diff: bool = Fal
     cont_vars.append(res_name)
 
     return df
-
 
 
 def proc_add_wma20_wma_60_diff(df, cont_vars, stock: Ticker, add_diff: bool = False, add_ohlc_diff: bool = False):

@@ -1,4 +1,7 @@
+import matplotlib
 import numpy as np
+import seaborn as sns
+from IPython.display import set_matplotlib_formats
 
 from src.procs.OnlineVariance import OnlineVariance
 
@@ -10,6 +13,40 @@ from src.procs.OnlineVariance import OnlineVariance
 class BaseMetrics:
     def __init__(self):
         self.ov = OnlineVariance()
+
+    def monthly_return(self, df, plot: bool = False):
+        """
+
+        :param df:
+        :param plot:
+        :return:
+        """
+        # https://mybinder.org/v2/gh/mmngreco/quantdare_posts/master?filepath=calcular_retornos/agregate_returns.ipynb
+        data = df.asfreq('B')  # add frequency needed for some pandas functionalities releated with offsets
+        data.columns = data.columns.map(lambda col: col.lower())
+        # using close prices
+        prices = data.close.copy()
+        # we convert to DataFrame to make easy store more series.
+        results_storage = prices.to_frame().copy()
+        # extract some date information
+        results_storage['year'] = prices.index.year
+        results_storage['month'] = prices.index.month
+        results_storage['day'] = prices.index.day
+        results_storage['week_day'] = prices.index.dayofweek
+        results_storage['week_day_name'] = prices.index.strftime('%A')
+
+        # with "asfreq" we decimate the prices, then group by year and month, so we
+        # have all the prices at the end of the working month available in the DataFrame.
+        # Finally we calculate the return of this new series with "pct_change".
+        monthly_return = results_storage.asfreq('BM') \
+            .set_index(['year', 'month']) \
+            .close.pct_change()
+
+        if plot:
+            self.plot_this(monthly_return, bar=True, title='Trailing returns: Approach 2.1',
+                           ylabel='Returns (parts per unit)', txt_ymin=-0.4, bottom_adj=0.25)
+        return monthly_return
+
 
     def daily_returns(self, df, column_name: str = "Close", log: bool = False):
         """
@@ -141,3 +178,63 @@ class BaseMetrics:
             return 2 * ((precision * recall) / (precision + recall))
         else:
             return 0
+
+    def __total_return(prices):
+        """Retuns the return between the first and last value of the DataFrame.
+        Parameters
+        ----------
+        prices : pandas.Series or pandas.DataFrame
+        Returns
+        -------
+        total_return : float or pandas.Series
+            Depending on the input passed returns a float or a pandas.Series.
+        """
+        return prices.iloc[-1] / prices.iloc[0] - 1
+
+    def __total_return_from_returns(returns):
+        """Retuns the return between the first and last value of the DataFrame.
+        Parameters
+        ----------
+        returns : pandas.Series or pandas.DataFrame
+        Returns
+        -------
+        total_return : float or pandas.Series
+            Depending on the input passed returns a float or a pandas.Series.
+        """
+        return (returns + 1).prod() - 1
+
+    def plot_this(self, df, title, figsize=None, ylabel='',
+                  output_file='imgs/fig.png', bottom_adj=0.25,
+                  txt_ymin=-0.4, bar=False):
+
+        # prettify the figures
+        self.plt.style.use(['seaborn-white', 'seaborn-paper'])
+        matplotlib.rc('font', family='Times New Roman', size=15)
+        set_matplotlib_formats('png', 'png', quality=90)
+        self.plt.rcParams['savefig.dpi'] = 150
+        self.plt.rcParams['figure.autolayout'] = False
+        self.plt.rcParams['figure.figsize'] = 8, 5
+        self.plt.rcParams['axes.labelsize'] = 10
+        self.plt.rcParams['axes.titlesize'] = 15
+        self.plt.rcParams['font.size'] = 12
+        self.plt.rcParams['lines.linewidth'] = 1.0
+        self.plt.rcParams['lines.markersize'] = 8
+        self.plt.rcParams['legend.fontsize'] = 12
+        self.plt.rcParams['ytick.labelsize'] = 11
+        self.plt.rcParams['xtick.labelsize'] = 11
+        self.plt.rcParams['font.family'] = 'Times New Roman'
+        self.plt.rcParams['font.serif'] = 'cm'
+        self.plt.rcParams['axes.grid'] = True
+
+        kw_save = dict(bbox_iches='tight', transparent=True)
+
+        if bar:
+            ax = df.plot.bar(title=title, figsize=figsize)
+        else:
+            ax = df.plot(title=title, figsize=figsize)
+        sns.despine()
+        self.plt.ylabel(ylabel)
+        self.plt.tight_layout()
+        self.plt.text(0, txt_ymin, transform=ax.transAxes, fontsize=9)
+        self.plt.gcf().subplots_adjust(bottom=bottom_adj)
+        self.avefig(output_file, **kw_save)

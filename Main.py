@@ -51,9 +51,6 @@ def main():
             m = BaseMetrics()
 
 
-
-
-
         if inspect:
             stock = Ticker.Ticker.AMZN
             all = True

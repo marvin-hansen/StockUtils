@@ -53,13 +53,14 @@ def main():
 
 
         if inspect:
-            stock = Ticker.Ticker.AMZN
+            prep = Preperator()
             DBG = True
             all_data = True
             prep_id = 1  # Range: {1,2}
-            proc = 2  # Range: {1,2,3,4,5}
+            proc = 3  # Range: {1,2,3,4,5}
 
-            prep = Preperator()
+            stock = Ticker.Ticker.SPX
+
             train_df, test_df = prep.prepare_experiment(stock=stock, prep_id=prep_id, all_data=all_data,
                                                         proc_flow_id=proc, DBG=DBG)
 

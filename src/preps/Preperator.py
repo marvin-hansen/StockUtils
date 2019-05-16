@@ -33,11 +33,17 @@ class Preperator:
         if prep_id == 1:
             if DBG: print("Loading Data for stock: " + stock.name)
             df_all = n.load_data(stock, TimeFrame.TimeFrame.DAILY, full=all_data)
+
             if DBG: print("Create a ProcFlow")
             pf = ProcFlow(DBG)
-            if DBG: print("Applying pre-processor: ", proc_flow_id, "on stock: " + stock.name)
+
+            if DBG: print("Applying pre-processor: ", proc_flow_id, "on: " + stock.name)
             df_all = pf.proc_switch(data=df_all, stock=stock, y_col="Close", nr_n=5, proc_id=proc_flow_id)
 
+            if DBG: print("Split df_all in train & test")
+            train_df, test_df = pf.split_data(df=df_all, split_ratio=0.80, vrb=True)
+
+            if DBG: print("Inspect Data")
             if DBG:
                 df = df_all
                 print("Done!")
@@ -48,9 +54,6 @@ class Preperator:
                 print("Sample data: ")
                 print(df.tail(5))
 
-            if DBG: print("Split df_all in train & test")
-            train_df, test_df = pf.split_data(df=all_data, split_ratio=0.80, vrb=True)
-
             return train_df, test_df
 
         if prep_id == 2:
@@ -58,11 +61,14 @@ class Preperator:
             df_all = n.load_data(stock, TimeFrame.TimeFrame.DAILY, full=all_data)
             if DBG: print("Create a ProcFlow")
             pf = ProcFlow(DBG)
-            if DBG: print("Applying pre-processor: ", proc_flow_id, "on stock: " + stock.name)
+            if DBG: print("Applying pre-processor: ", proc_flow_id, "on: " + stock.name)
             df_all = pf.proc_switch(data=df_all, stock=stock, y_col="Close", nr_n=5, proc_id=proc_flow_id)
             # if DBG: print("Apply MinMax regularization")
             #  MinMax regularization has a but that sets all percentage values to ZERO :-(
             # df_all = p.proc_min_max_normalize(df=df_all, max_scale=20, all_col=False, exclude_col=["Date"])
+
+            if DBG: print("Split df_all in train & test")
+            train_df, test_df = pf.split_data(df=df_all, split_ratio=0.80, vrb=True)
 
             return df_all
 

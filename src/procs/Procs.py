@@ -847,7 +847,7 @@ def proc_add_mov_avg(df, cont_vars,
         return pd.merge(df, ma_data, on=merge_on)
 
 
-def split_data(df, split_ratio: float = 0.80, vrb: bool = False):
+def split_data(df, split_ratio:float =0.80, vrb: bool = False):
     """
     Util to split a pandas dataframe in train, test, and validation data.
 

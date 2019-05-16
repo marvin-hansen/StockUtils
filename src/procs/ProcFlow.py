@@ -289,10 +289,12 @@ class ProcFlow():
         # percent change of y-column
         # data = p.proc_add_percent_change(df=data, column_name=y_col, cont_vars=cont_vars)
         #
-        # data = p.proc_add_direction(df=data, column_name=y_col, cat_vars=cat_vars, cont_vars=cont_vars)
-
+        data = p.proc_add_direction(df=data, column_name=y_col, cat_vars=cat_vars, cont_vars=cont_vars)
         data = p.proc_add_direction(df=data, column_name="MOM", cat_vars=cat_vars, cont_vars=cont_vars)
 
+        # Add closing proce & momentum volatility
         data = p.proc_add_volatility(df=data, column_name=y_col, cont_vars=cont_vars)
+        data = p.proc_add_volatility(df=data, column_name="MOM", cont_vars=cont_vars)
+
 
         return data

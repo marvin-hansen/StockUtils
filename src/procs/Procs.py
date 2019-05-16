@@ -103,20 +103,34 @@ def proc_add_abs_percent_change(df, column_name, cont_vars):
     return df
 
 
-def proc_add_direction(df, column_name, cat_vars, cont_vars):
+def proc_add_direction(df, column_name, cat_vars, cont_vars, noise_threshold: float = 0.07):
     """
 
     Adds the following direction categories, encoded as integers, in a seperate column:
 
+    SKYFALL = -7     # percentage change falls below the bottom 10%
     STRONG_DOWN = -3 # percentage change falls below the bottom 25%
-    DOWN = -1        # percentage change is negative but still above the bottom 25%
-    UP = 1           # percentage change is positive but below the 75% percentile
+    DOWN = -1        # percentage change is negative, non-noise, but still above the bottom 25%
+    ZERO = 0         # percentage change is either zero or within the noise range
+    UP = 1           # percentage change is positive, above noise level, but below the 75% percentile
     STRONG_UP = 3    # percentage change is above the 75% percentile but below the top 10%
     SKY_UP = 7       # percentage change is above the top 10%
 
     The column containing percentage change (from the matching proc) will be added
     automatically in case it is missing.
 
+    The noise thresholds determines the minimum percentile required to trigger a categorization.
+    For example, a 7% thresholds only allows values within the 97% to pass forward while cutting
+    off all other valuess. For Example, an AMZN 7 percentile thresholds cuts off
+    any pct-change moves that are +/- 0.16% or less while allowing values > 0.16% or smaller than -0.16%
+    You can count the number of "noises" values with the following:
+
+        print(df["Close-direction"] == 0).sum(axis=0)
+
+    The noise threshold percentile should be set below 0.10 to ensure that over 90% of the data get
+    a direction value assigned.
+
+    :param noise_threshold:
     :param df: pandas dataframe
     :param column_name: Name of the column from which the direction should be calculated
     :param cont_vars: continous meta data
@@ -149,20 +163,28 @@ def proc_add_direction(df, column_name, cat_vars, cont_vars):
     SKYFALL = -7
     STRONG_DOWN = -3
     DOWN = -1
+    ZERO = 0
     UP = 1
     MORE_UP = 3
     STRONG_UP = 5
     SKY_UP = 7
+
+    # min & max threshold to exclude noise
+    min_positive_pct = df[target].loc[df[target] > 0].quantile(noise_threshold)
+    min_negative_pct = df[target].loc[df[target] < 0].quantile(1 - noise_threshold)
 
     # SKYFALL = percentage change falls below the bottom 10%
     df.loc[(df[target] < lowest_ten_quantile), column_name + name] = SKYFALL
     # STRONG_DOWN = percentage change falls below the bottom 25% but stays above the lowest 10%
     df.loc[(df[target] < bottom_quantile) & (df[target] > lowest_ten_quantile), column_name + name] = STRONG_DOWN
     # DOWN = percentage change is negative but still above the bottom 25%
-    df.loc[(df[target] < 0) & (df[target] > bottom_quantile), column_name + name] = DOWN
+    df.loc[(df[target] < min_negative_pct) & (df[target] > bottom_quantile), column_name + name] = DOWN
     #
-    # UP = percentage change is positive but below the 75% percentile
-    df.loc[(df[target] > 0) & (df[target] < top_quantile), column_name + name] = UP
+    # ZERO, if value is within noise level
+    df.loc[(df[target] > min_negative_pct) & (df[target] < min_positive_pct), column_name + name] = ZERO
+    #
+    # UP = percentage change is positive, above the noise threshold, but below the 75% percentile
+    df.loc[(df[target] > min_positive_pct) & (df[target] < top_quantile), column_name + name] = UP
     # MORE_UP = percentage change is above the 75% percentile but below the top 15%
     df.loc[(df[target] > top_quantile) & (df[target] < top_fifteen_quantile), column_name + name] = MORE_UP
     # MORE_UP = percentage change is above the 85% percentile but below the top 5%

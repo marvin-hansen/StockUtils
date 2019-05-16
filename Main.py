@@ -22,7 +22,7 @@ def main():
         n = CachedNetLoader(KEY, DBG)
         # set flags
         metrics = False
-        inspect = False
+        inspect = True
         load = False
         load_intra_day = False
         alpha_loader = False
@@ -68,24 +68,34 @@ def main():
             df_all = pf.proc_switch(data=df_all, stock=stock, y_col="Close", nr_n=5, proc_id=proc)
 
             # inspect a single column
-            # column_name =  "Close-pct"
-            # if DBG: print("Extracting coloum: ", column_name)
-            # df_col = df_all[column_name]
+            target = "Close-pct"
 
-            print(df_all.info())
+            noise_threshold: float = 0.07
+            min_positive_pct = df_all[target].loc[df_all[target] > 0].quantile(noise_threshold)
+            min_negative_pct = df_all[target].loc[df_all[target] < 0].quantile(1 - noise_threshold)
 
-            print(df_all.tail(5))
+            print("Min POSITIVE VALUE ", target)
+            print(min_positive_pct)
+            print()
+            print("Max NEGATIVE VALUE : ", target)
+            print(min_negative_pct)
 
-            DBG = False
+            # DBG = False
+            select_cols = True
             if DBG:
+                if select_cols:
+                    cols = ["Close", target, "Close-direction"]
+                    df = df_all[cols]
+                else:
+                    df = df_all
                 print("Done!")
                 print("Raw data: ")
-                print(df_all.info())
-                print("Sample data: ")
-                print(df_all.tail(3))
+                print(df.info())
                 print("Describing data: ")
-                print(df_all.describe())
-
+                print(df.describe())
+                print("Sample data: ")
+                print(df.tail(5))
+                if select_cols: print("Total ZERO values: ", (df["Close-direction"] == 0).sum(axis=0))
 
 
         if load:

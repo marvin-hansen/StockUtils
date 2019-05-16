@@ -1,23 +1,27 @@
 # StockUtils
 
-Utils to process stock data 
+Util collection to accelerate Deep Learnign experiments on stock market data. 
+Currently pre-alpha code with frequent breaking changes. 
 
-## Requirements 
-
-* Numpy 
-* Pandas 
-* Quandls 
-* AlphaVantage 
-* ta-lib (For TechProcs) 
-* fast.ai (optional) 
+## Example 
 
 
-## Notes
+```python
 
-TechProcs that wrap ta-lib are legacy now and replaced with [Procs](https://github.com/marvin-hansen/StockUtils/blob/master/src/procs/Procs.py) that fetch technical indicators from AlphaVantage. 
+    print("Loading Data for stock: " + stock.name)
+    df_all = n.load_data(stock, TimeFrame.TimeFrame.DAILY, full=all_data)
+    
+    print("Create a ProcFlow")
+    pf = ProcFlow(DBG)
+    
+    print("Applying pre-processor: ", proc_flow_id, "on stock: " + stock.name)
+    df_all = pf.proc_switch(data=df_all, stock=stock, y_col="Close", nr_n=5, proc_id=proc_flow_id)
+    
+    print("Split df_all in train & test")
+    train_df, test_df = pf.split_data(df=all_data, split_ratio=0.80, vrb=True)
+```
 
-However, the TechProcs source code is still there for cases when pulling data and indicators from AlphaVantage isn't an option
-or when a very specific indicator or chart patterns is needed. 
+Full example code [here](https://github.com/marvin-hansen/StockUtils/blob/master/src/preps/Preperator.py)  
 
 
 ## Install 
@@ -29,10 +33,6 @@ or when a very specific indicator or chart patterns is needed.
 
 ```
 
-
-## Getting started
-
-Sample code in the main file. 
 
 
 ## Features
@@ -102,6 +102,13 @@ Feature generator procs:
 Supported are several Technical Indicators provided by AlphaVantage (web API) and these are added as seperated columns by merging over the date column. DO NOT DELETE THE DATE COLUMN BEFORE ADDING ANY PROC. If your model does need or cannot handle datetime, remove it at the very last step to ensure all other procs are working correctly.
 
 A complete list of implemented procs is codified in the [corrspodning PROC ENUM](https://github.com/marvin-hansen/StockUtils/blob/master/src/enum/PROCS.py)
+
+## Notes
+
+TechProcs that wrap ta-lib are legacy now and replaced with [Procs](https://github.com/marvin-hansen/StockUtils/blob/master/src/procs/Procs.py) that fetch technical indicators from AlphaVantage. 
+
+However, the TechProcs source code is still there for cases when pulling data and indicators from AlphaVantage isn't an option
+or when a very specific indicator or chart patterns is needed. 
 
 
 

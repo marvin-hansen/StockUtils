@@ -25,8 +25,7 @@ or when a very specific indicator or chart patterns is needed.
 
 ```python
 
-  wget https://github.com/marvin-hansen/StockUtils/blob/master/StockUtils.zip
-  unzip StockUtils.zip
+  git clone https://github.com/marvin-hansen/StockUtils.git
 
 ```
 
@@ -43,6 +42,19 @@ Sample code in the main file.
 3) Various technical indicators (from AlphaVantage) 
 4) Data splitting (train & test)
 5) ProcFlow 
+6) Portfolio related metrics 
+
+
+## Metrics 
+
+The class BaseMetrics implements the following metrics:
+
+* DailyReturns 
+* Daily volatilty 
+* Sharpe ratio 
+* information ratio
+* M2 Ratio (Modigliani)
+* F1 score (Precision / Recall)
 
 
 ## Cached DataLoader
@@ -50,7 +62,6 @@ Sample code in the main file.
 The default cachedNetLoader fetches data from the web, stores them locally in a CSV file, and returns a pandas dataframe so that a  developer does not have to deal with JSON at all.  Proc's do a myriad of transformations or feature generators to the loaded data.
 The DataLoader interface can be implemented for any other data provider. A stub for Quandl is there 
 and a complete implementation for AlphaVantage is there.  
-
 
 
 ## Procs & ProcFlow 

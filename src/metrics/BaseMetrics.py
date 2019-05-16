@@ -124,7 +124,7 @@ class BaseMetrics:
 
         :return: f1_score : float
         """
-
+        # https://codereview.stackexchange.com/questions/36096/implementing-f1-score
         y_true = set(y_true)
         y_pred = set(y_pred)
 

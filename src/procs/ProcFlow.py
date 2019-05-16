@@ -292,15 +292,15 @@ class ProcFlow():
         data = p.proc_add_previous_values(df=data, column_name=y_col, number=nr_n, cont_vars=cont_vars)
         # percent change of y-column
         data = p.proc_add_percent_change(df=data, column_name=y_col, cont_vars=cont_vars)
-        # Direction
+        # y-column Direction
         data = p.proc_add_direction(df=data, column_name=y_col, cat_vars=cat_vars, cont_vars=cont_vars)
-        # Add volatility
+        # y-column volatility
         data = p.proc_add_volatility(df=data, column_name=y_col, cont_vars=cont_vars)
 
         # add Bollinger Band
         data = p.proc_add_bband(df=data, stock=stock, cont_vars=cont_vars, add_diff_to_bb=True)
 
-        # Add SMA
+        # Add SMA with ohlc_diff=True
         data = p.proc_add_sma20(df=data, cont_vars=cont_vars, stock=stock, add_diff=True)
         data = p.proc_add_sma200(df=data, cont_vars=cont_vars, stock=stock, add_diff=True)
         data = p.proc_add_sma20_sma_200_diff(df=data, cont_vars=cont_vars, stock=stock)
@@ -318,9 +318,9 @@ class ProcFlow():
         data = p.proc_add_mom(df=data, cont_vars=cont_vars, stock=stock)
         # add momentum percentage change
         data = p.proc_add_percent_change(df=data, column_name="MOM", cont_vars=cont_vars)
-        # Direction
+        # add momentum direction
         data = p.proc_add_direction(df=data, column_name="MOM", cat_vars=cat_vars, cont_vars=cont_vars)
-        # Add volatility
+        # Add momentum volatility
         data = p.proc_add_volatility(df=data, column_name="MOM", cont_vars=cont_vars)
 
         return data

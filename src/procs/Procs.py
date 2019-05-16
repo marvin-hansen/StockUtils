@@ -1,4 +1,3 @@
-import numpy as np
 import pandas as pd
 
 from src.enum import TECHIND
@@ -12,6 +11,38 @@ DBG = False
 def proc_fill_nan(df):
     """ replaces NaN with zeros  """
     return df.fillna(0)
+
+
+def proc_min_max_normalize(df, max_scale: int = 100, all_col=True, exclude_col=["Date"]):
+    """
+    MinMax Normalization on pandas dataframe. By defaul,t all columns will
+    be processed. When specific column (say "Date" or certain category values)
+    should be excluded, set the flag to False, and apass a string array of column names to exclude.
+
+
+    :param df: pandas data frame
+    :param max_scale: The maximum nunmber to which all values will be scaled.
+    :param all_col: Set to false to esclude columns pass in the exclude_col string array
+    :param exclude_col: string array (or list) with column nams to exclude.
+    :return:
+    """
+
+    # replaces all NaN values with zero
+    df = proc_fill_nan(df)
+    if all_col:
+        return ((df - df.min()) / (df.max() - df.min())) * max_scale
+    else:
+        # dataNorm = ((df - df.min()) / (df.max() - df.min())) * max_scale
+        excluded = df[exclude_col]
+        # delete all columns to exclude
+        tmp = df.drop(columns=exclude_col)
+        # normalize all other
+        tmp = ((tmp - tmp.min()) / (tmp.max() - tmp.min())) * max_scale
+
+        # Concatenate excluded columns and all normalized data togehter
+        dataNorm = pd.concat([excluded, tmp], axis=1)
+
+        return dataNorm
 
 
 def proc_close_only(df, cont_vars):
@@ -85,7 +116,8 @@ def proc_add_percent_change(df, column_name, cont_vars):
     name = "-pct"
     # simple daily percentage change
     # https://subscription.packtpub.com/book/big_data_and_business_intelligence/9781787123137/15/ch15lvl1sec126/calculating-the-simple-daily-percentage-change-in-closing-price
-    df[column_name + name] = (df[column_name] / df[column_name].shift(1) - 1) * 100
+    # df[column_name + name] = (df[column_name] / df[column_name].shift(1) - 1) * 100
+    df[column_name + name] = (df[column_name].pct_change())
     cont_vars.append(column_name + name)
     return df
 
@@ -180,7 +212,7 @@ def proc_add_direction(df, column_name, cat_vars, cont_vars, noise_threshold: fl
     # DOWN = percentage change is negative but still above the bottom 25%
     df.loc[(df[target] < min_negative_pct) & (df[target] > bottom_quantile), column_name + name] = DOWN
     #
-    # ZERO, if value is within noise level
+    # ZERO, if value is either zero or within noise level
     df.loc[(df[target] > min_negative_pct) & (df[target] < min_positive_pct), column_name + name] = ZERO
     #
     # UP = percentage change is positive, above the noise threshold, but below the 75% percentile
@@ -192,6 +224,7 @@ def proc_add_direction(df, column_name, cat_vars, cont_vars, noise_threshold: fl
     # SKY_UP = percentage change is above the top 5%
     df.loc[(df[target] > top_five_quantile), column_name + name] = SKY_UP
 
+    # add meta data
     cat_vars.append(column_name + name)
 
     return df
@@ -211,16 +244,10 @@ def proc_add_volatility(df, column_name, cont_vars, nr_days=255):
     # name postfix of the new column
     name = column_name + "-volatility"
 
-    lr = "Log_Ret"
-    # Compute the logarithmic returns using the Closing price
-    df[lr] = np.log(df['Close'] / df['Close'].shift(1))
-
     # Compute Volatility using the Welford's method
-
     ov = OnlineVariance()
     for n in range(nr_days):
         ov.include(df[column_name].shift(n))
-
     df[name] = ov.std
 
     cont_vars.append(name)
@@ -313,7 +340,7 @@ def proc_add_mom(df, cont_vars, stock: Ticker, change: bool = False):
     df_merge = pd.merge(df, mom_data, on="Date")
 
     if change:
-        col_name = "MOM_CHANGE"
+        col_name = "MOM-pct"
         df_merge[col_name] = df_merge["MOM"].pct_change()
         cont_vars.append(col_name)
 
@@ -827,7 +854,7 @@ def split_data(df, split_ratio: float = 0.80, vrb: bool = False):
     :param df: pandas data frame
     :param split_ratio: ratio between train & test
     :param vrb: Verbose. False by default
-    :return: train_df, test_df, valid_df
+    :return: train_df, test_df
     """
     assert split_ratio <= 1.00
     assert split_ratio > 0.00

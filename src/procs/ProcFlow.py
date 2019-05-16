@@ -103,7 +103,17 @@ class ProcFlow():
     def __init__(self, dbg):
         self.DBG = dbg
 
-    def proc_switch(self, data, stock, y_col="", nr_n=5, proc_id=1):
+    def split_data(self, df, split_ratio: float = 0.80, vrb: bool = False):
+        """
+        Util to split a pandas dataframe in train, test, and validation data.
+        :param df:
+        :param split_ratio:
+        :param vrb:
+        :return: train_df, test_df
+        """
+        return p.split_data(df=df, split_ratio=split_ratio, vrb=vrb)
+
+    def proc_switch(self, data, stock, y_col="", nr_n=4, proc_id=1):
 
         if proc_id == 1:
             return self.proc_01(data, stock, y_col, nr_n=nr_n)
@@ -198,7 +208,7 @@ class ProcFlow():
         p.proc_add_previous_values(df=data, column_name=y_col, number=nr_n, cont_vars=cont_vars)
 
         # categorify date
-        p.proc_add_datepart(df=data, cont_vars=cont_vars, cat_vars=cat_vars)
+        # p.proc_add_datepart(df=data, cont_vars=cont_vars, cat_vars=cat_vars)
 
         # percennt change
         p.proc_add_percent_change(df=data, column_name="Open", cont_vars=cont_vars)
@@ -226,7 +236,7 @@ class ProcFlow():
         cont_vars = ["Open", "High", "Low", "Close", "Volume"]
 
         # categorify date
-        p.proc_add_datepart(df=data, cont_vars=cont_vars, cat_vars=cat_vars)
+        # p.proc_add_datepart(df=data, cont_vars=cont_vars, cat_vars=cat_vars)
 
         # Add percent change for each of the OHLC
         p.proc_add_percent_change(df=data, column_name="Open", cont_vars=cont_vars)
@@ -278,23 +288,39 @@ class ProcFlow():
         # categorify date
         # p.proc_add_datepart(df=data, cont_vars=cont_vars, cat_vars=cat_vars)
 
+        # add previous n values of y-column
+        data = p.proc_add_previous_values(df=data, column_name=y_col, number=nr_n, cont_vars=cont_vars)
+        # percent change of y-column
+        data = p.proc_add_percent_change(df=data, column_name=y_col, cont_vars=cont_vars)
+        # Direction
+        data = p.proc_add_direction(df=data, column_name=y_col, cat_vars=cat_vars, cont_vars=cont_vars)
+        # Add volatility
+        data = p.proc_add_volatility(df=data, column_name=y_col, cont_vars=cont_vars)
+
+        # add Bollinger Band
+        data = p.proc_add_bband(df=data, stock=stock, cont_vars=cont_vars, add_diff_to_bb=True)
+
+        # Add SMA
+        data = p.proc_add_sma20(df=data, cont_vars=cont_vars, stock=stock, add_diff=True)
+        data = p.proc_add_sma200(df=data, cont_vars=cont_vars, stock=stock, add_diff=True)
+        data = p.proc_add_sma20_sma_200_diff(df=data, cont_vars=cont_vars, stock=stock)
+        # SMA percentage change
+        data = p.proc_add_percent_change(df=data, column_name="SMA_20", cont_vars=cont_vars)
+        data = p.proc_add_percent_change(df=data, column_name="SMA_200", cont_vars=cont_vars)
+
+        # Add WMA with ohlc_diff=True
+        data = p.proc_add_wma20_wma_60_diff(df=data, cont_vars=cont_vars, stock=stock, add_ohlc_diff=True)
+        # WMA percentage change
+        data = p.proc_add_percent_change(df=data, column_name="WMA_20", cont_vars=cont_vars)
+        data = p.proc_add_percent_change(df=data, column_name="WMA_60", cont_vars=cont_vars)
+
         # add momentum
         data = p.proc_add_mom(df=data, cont_vars=cont_vars, stock=stock)
         # add momentum percentage change
         data = p.proc_add_percent_change(df=data, column_name="MOM", cont_vars=cont_vars)
-
-        # add previous n values of y-column
-        # data = p.proc_add_previous_values(df=data, column_name=y_col, number=nr_n, cont_vars=cont_vars)
-
-        # percent change of y-column
-        # data = p.proc_add_percent_change(df=data, column_name=y_col, cont_vars=cont_vars)
-        #
-        data = p.proc_add_direction(df=data, column_name=y_col, cat_vars=cat_vars, cont_vars=cont_vars)
+        # Direction
         data = p.proc_add_direction(df=data, column_name="MOM", cat_vars=cat_vars, cont_vars=cont_vars)
-
-        # Add closing proce & momentum volatility
-        data = p.proc_add_volatility(df=data, column_name=y_col, cont_vars=cont_vars)
+        # Add volatility
         data = p.proc_add_volatility(df=data, column_name="MOM", cont_vars=cont_vars)
-
 
         return data

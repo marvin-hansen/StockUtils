@@ -4,6 +4,7 @@ from src.enum import TECHIND
 from src.enum import Ticker
 from src.enum import TimeFrame
 from src.metrics.BaseMetrics import BaseMetrics
+from src.preps.Preperator import Preperator
 from src.procs import Procs as p
 from src.procs.ProcFlow import ProcFlow
 from src.utils import KeyManager as k
@@ -53,49 +54,18 @@ def main():
 
         if inspect:
             stock = Ticker.Ticker.AMZN
-            all = True
             DBG = True
+            all_data = True
+            prep_id = 1  # Range: {1,2}
+            proc = 2  # Range: {1,2,3,4,5}
 
-            if DBG: print(stock.name)
-            if DBG: print("Loading Data for stock: " + stock.name)
-            df_all = n.load_data(stock, TimeFrame.TimeFrame.DAILY, full=all)
+            prep = Preperator()
+            train_df, test_df = prep.prepare_experiment(stock=stock, prep_id=prep_id, all_data=all_data,
+                                                        proc_flow_id=proc, DBG=DBG)
 
-            # Create a ProcFlow
-            pf = ProcFlow(DBG)
-
-            proc = 4
-            if DBG: print("Applying pre-processor: ", proc, "on stock: " + stock.name)
-            df_all = pf.proc_switch(data=df_all, stock=stock, y_col="Close", nr_n=5, proc_id=proc)
-
-            # inspect a single column
-            target = "Close-pct"
-
-            noise_threshold: float = 0.07
-            min_positive_pct = df_all[target].loc[df_all[target] > 0].quantile(noise_threshold)
-            min_negative_pct = df_all[target].loc[df_all[target] < 0].quantile(1 - noise_threshold)
-
-            print("Min POSITIVE VALUE ", target)
-            print(min_positive_pct)
-            print()
-            print("Max NEGATIVE VALUE : ", target)
-            print(min_negative_pct)
-
-            # DBG = False
-            select_cols = True
-            if DBG:
-                if select_cols:
-                    cols = ["Close", target, "Close-direction"]
-                    df = df_all[cols]
-                else:
-                    df = df_all
-                print("Done!")
-                print("Raw data: ")
-                print(df.info())
-                print("Describing data: ")
-                print(df.describe())
-                print("Sample data: ")
-                print(df.tail(5))
-                if select_cols: print("Total ZERO values: ", (df["Close-direction"] == 0).sum(axis=0))
+            #  MinMax regularization has a bug that sets all percentage values to ZERO :-(
+            # if DBG: print("Applying MinMax regularization  " + stock.name)
+            # df_all = p.proc_min_max_normalize(df=df_all, max_scale=20, all_col=False, exclude_col=["Date"])
 
 
         if load:

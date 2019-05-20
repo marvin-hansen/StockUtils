@@ -235,23 +235,20 @@ class CachedNetLoader:
         :param full: Returns only last 100 ticks if False, otherwise full tick data set if True. False by default.
         :return: stock data, meta_data
         """
+        if full:
+            output_size = 'full'
+        else:
+            output_size = 'compact'
+
         if period is TimeFrame.TimeFrame.DAILY:
-            if full:
-                return self.ts.get_daily(symbol=stock.name, outputsize='full')
-            else:
-                return self.ts.get_daily(symbol=stock.name, outputsize='compact')
+            return self.ts.get_daily(symbol=stock.name, outputsize=output_size)
 
         if period is TimeFrame.TimeFrame.WEEKLY:
-            if full:
-                return self.ts.get_weekly(symbol=stock.name, outputsize='full')
-            else:
-                return self.ts.get_weekly(symbol=stock.name, outputsize='compact')
+            return self.ts.get_weekly(symbol=stock.name, outputsize=output_size)
 
         if period is TimeFrame.TimeFrame.MONTHLY:
-            if full:
-                return self.ts.get_monthly(symbol=stock.name, outputsize='full')
-            else:
-                return self.ts.get_monthly(symbol=stock.name, outputsize='compact')
+            return self.ts.get_monthly(symbol=stock.name, outputsize=output_size)
+
 
     def warm_cache(self, stock: Ticker):
         """

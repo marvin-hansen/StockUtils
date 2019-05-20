@@ -113,25 +113,25 @@ class ProcFlow():
         """
         return p.split_data(df=df, split_ratio=split_ratio, vrb=vrb)
 
-    def proc_switch(self, data, stock, y_col="", nr_n=4, proc_id=1):
+    def proc_switch(self, data, stock, y_col="", nr_n=4, proc_id=1, meta_data=False):
 
         if proc_id == 1:
-            return self.proc_01(data, stock, y_col, nr_n=nr_n)
+            return self.proc_01(data, stock, y_col, nr_n=nr_n, meta_data=meta_data)
 
         if proc_id == 2:
-            return self.proc_02(data, stock, y_col, nr_n=nr_n)
+            return self.proc_02(data, stock, y_col, nr_n=nr_n, meta_data=meta_data)
 
         if proc_id == 3:
-            return self.proc_03(data, stock, y_col, nr_n=nr_n)
+            return self.proc_03(data, stock, y_col, nr_n=nr_n, meta_data=meta_data)
 
         if proc_id == 4:
-            return self.proc_04(data, stock, y_col, nr_n=nr_n)
+            return self.proc_04(data, stock, y_col, nr_n=nr_n, meta_data=meta_data)
 
         else:
             print("No matching proc ID found")
 
     @staticmethod
-    def base_proc_00(data, stock, y_col, nr_n: int):
+    def base_proc_00(data, stock, y_col, nr_n: int, meta_data=False):
         """
         Base proc that is meant to be used as template.
 
@@ -175,10 +175,13 @@ class ProcFlow():
         # Thus, the proc below replaces any possible NaN value with zero.
         # data = p.proc_fill_nan
 
-        return data
+        if meta_data:
+            return data, cat_vars, cont_vars
+        else:
+            return data
 
     @staticmethod
-    def proc_01(data, stock, y_col, nr_n: int):
+    def proc_01(data, stock, y_col, nr_n: int, meta_data=False):
         # seperate  columns into continous data columns and category data columns
         cont_vars = []  # clear everything, just in case
         cat_vars = []
@@ -194,10 +197,13 @@ class ProcFlow():
         # data = p.proc_add_bband(df=data, stock=stock, cont_vars=cont_vars, add_diff_to_bb=True)
         data = p.proc_add_bband(df=data, stock=stock, cont_vars=cont_vars, add_diff_to_bb=False, add_ohlc_diff=True)
 
-        return data
+        if meta_data:
+            return data, cat_vars, cont_vars
+        else:
+            return data
 
     @staticmethod
-    def proc_02(data, stock, y_col, nr_n: int):
+    def proc_02(data, stock, y_col, nr_n: int, meta_data=False):
         # seperate  columns into continous data columns and category data columns
         cont_vars = []  # clear everything, just in case
         cat_vars = []
@@ -226,10 +232,13 @@ class ProcFlow():
         data = p.proc_add_sma20_sma_200_diff(df=data, cont_vars=cont_vars, stock=stock)
         data = p.proc_add_wma20_wma_60_diff(df=data, cont_vars=cont_vars, stock=stock, add_ohlc_diff=True)
 
-        return data
+        if meta_data:
+            return data, cat_vars, cont_vars
+        else:
+            return data
 
     @staticmethod
-    def proc_03(data, stock, y_col="", nr_n=1):
+    def proc_03(data, stock, y_col="", nr_n=1, meta_data=False):
         # seperate  columns into continous and category data columns
         cont_vars = []  # clear everything, just in case
         cat_vars = []
@@ -251,10 +260,8 @@ class ProcFlow():
         data = p.proc_add_mom(df=data, cont_vars=cont_vars, stock=stock)
         # add momentum percentage change
         data = p.proc_add_percent_change(df=data, column_name="MOM", cont_vars=cont_vars)
-
         # add y
         p.proc_add_next_y(df=data, y_column=y_col, number=nr_n, cont_vars=cont_vars)
-
         # run procs
         # add previous n y values
         p.proc_add_previous_values(df=data, column_name=y_col, number=5, cont_vars=cont_vars)
@@ -276,51 +283,74 @@ class ProcFlow():
         data = p.proc_add_percent_change(df=data, column_name="WMA_20", cont_vars=cont_vars)
         data = p.proc_add_percent_change(df=data, column_name="WMA_60", cont_vars=cont_vars)
 
-        return data
+        if meta_data:
+            return data, cat_vars, cont_vars
+        else:
+            return data
 
     @staticmethod
-    def proc_04(data, stock, y_col="", nr_n=1):
+    def proc_04(data, stock, y_col="", nr_n=1, meta_data=False):
         # seperate  columns into continous and category data columns
         cont_vars = []  # clear everything, just in case
         cat_vars = []
         cont_vars = ["Open", "High", "Low", "Close", "Volume"]
+        DBG = False
 
         # categorify date
         # p.proc_add_datepart(df=data, cont_vars=cont_vars, cat_vars=cat_vars)
 
-        # add previous n values of y-column
+        if DBG: print("add previous n values of y-column")
         data = p.proc_add_previous_values(df=data, column_name=y_col, number=nr_n, cont_vars=cont_vars)
-        # percent change of y-column
+        if DBG: print("percent change of y-column")
         data = p.proc_add_percent_change(df=data, column_name=y_col, cont_vars=cont_vars)
-        # y-column Direction
+        if DBG: print("y-column Direction")
         data = p.proc_add_direction(df=data, column_name=y_col, cat_vars=cat_vars, cont_vars=cont_vars)
-        # y-column volatility
+        if DBG: print("y-column volatility")
         data = p.proc_add_volatility(df=data, column_name=y_col, cont_vars=cont_vars)
+        if DBG: print("y-column volatility change")
+        data = p.proc_add_percent_change(df=data, column_name=y_col+"-volatility", cont_vars=cont_vars)
 
-        # add Bollinger Band
+        # Add volume change
+        if DBG: print("Add Add volume change")
+        data = p.proc_add_percent_change(df=data, column_name="Volume", cont_vars=cont_vars)
+        if DBG: print("Add volume volatility")
+        data = p.proc_add_volatility(df=data, column_name="Volume", cont_vars=cont_vars)
+        if DBG: print("Volume volatility change")
+        data = p.proc_add_percent_change(df=data, column_name="Volume"+"-volatility", cont_vars=cont_vars)
+
+        # Add momentum
+        if DBG: print("Add momentum")
+        data = p.proc_add_mom(df=data, stock=stock, cont_vars=cont_vars, change=False)
+        if DBG: print("Add momentum percentage change")
+        data = p.proc_add_percent_change(df=data, column_name="MOM", cont_vars=cont_vars)
+        if DBG: print("Add momentum direction")
+        data = p.proc_add_direction(df=data, column_name="MOM", cat_vars=cat_vars, cont_vars=cont_vars)
+        # Add momentum volatility
+        if DBG: print("Add momentum volatility")
+        data = p.proc_add_volatility(df=data, column_name="MOM", cont_vars=cont_vars)
+        if DBG: print("Add Volume momentum volatility change")
+        data = p.proc_add_percent_change(df=data, column_name="MOM" + "-volatility", cont_vars=cont_vars)
+
+        if DBG: print("Add Bollinger Band")
         data = p.proc_add_bband(df=data, stock=stock, cont_vars=cont_vars, add_diff_to_bb=True)
 
-        # Add SMA with ohlc_diff=True
+        if DBG: print("Add SMA with ohlc_diff=True")
         data = p.proc_add_sma20(df=data, cont_vars=cont_vars, stock=stock, add_diff=True)
         data = p.proc_add_sma200(df=data, cont_vars=cont_vars, stock=stock, add_diff=True)
         data = p.proc_add_sma20_sma_200_diff(df=data, cont_vars=cont_vars, stock=stock)
-        # SMA percentage change
+
+        if DBG: print("SMA percentage change")
         data = p.proc_add_percent_change(df=data, column_name="SMA_20", cont_vars=cont_vars)
         data = p.proc_add_percent_change(df=data, column_name="SMA_200", cont_vars=cont_vars)
 
-        # Add WMA with ohlc_diff=True
+        if DBG: print("Add WMA with ohlc_diff=True")
         data = p.proc_add_wma20_wma_60_diff(df=data, cont_vars=cont_vars, stock=stock, add_ohlc_diff=True)
-        # WMA percentage change
+        if DBG: print("WMA percentage change")
+
         data = p.proc_add_percent_change(df=data, column_name="WMA_20", cont_vars=cont_vars)
         data = p.proc_add_percent_change(df=data, column_name="WMA_60", cont_vars=cont_vars)
 
-        # add momentum
-        data = p.proc_add_mom(df=data, cont_vars=cont_vars, stock=stock)
-        # add momentum percentage change
-        data = p.proc_add_percent_change(df=data, column_name="MOM", cont_vars=cont_vars)
-        # add momentum direction
-        data = p.proc_add_direction(df=data, column_name="MOM", cat_vars=cat_vars, cont_vars=cont_vars)
-        # Add momentum volatility
-        data = p.proc_add_volatility(df=data, column_name="MOM", cont_vars=cont_vars)
-
-        return data
+        if meta_data:
+            return data, cat_vars, cont_vars
+        else:
+            return data

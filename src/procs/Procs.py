@@ -318,7 +318,7 @@ def proc_add_obv(df, cont_vars, stock: Ticker, change: bool = False):
     return df_merge
 
 
-def proc_add_mom(df, cont_vars, stock: Ticker, change: bool = False):
+def proc_add_mom(df, stock: Ticker, cont_vars, change: bool = False):
     """
     Adds momentum to the given pandas frame.
     When change = True, the percentge change in momentum will be added too
@@ -333,11 +333,11 @@ def proc_add_mom(df, cont_vars, stock: Ticker, change: bool = False):
     mom_data = __rename_column(mom_data, "date", 'Date')
     convert_date(mom_data, "Date")
 
-    # update meta data
-    cont_vars.append("MOM")
-
     # Merge
     df_merge = pd.merge(df, mom_data, on="Date")
+
+    # update meta data
+    cont_vars.append("MOM")
 
     if change:
         col_name = "MOM-pct"

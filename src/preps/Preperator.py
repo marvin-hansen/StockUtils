@@ -1,3 +1,6 @@
+from typing import List
+
+from src.dataclasses.DataContainer import DataContainer
 from src.enum import Ticker
 from src.enum import TimeFrame
 from src.procs.ProcFlow import ProcFlow
@@ -27,6 +30,8 @@ class Preperator:
         :return:
         """
 
+        #TODO: update code to use DataContainer instead of direct access
+
         stock_AAPL = Ticker.Ticker.AAPL
         if DBG: print("Processing data for stock: " + stock_AAPL.name)
         df_AAPL = self.prepare_experiment(stock=stock_AAPL, prep_id=prep_id, all_data=all_data, proc_flow_id=proc_flow_id, split_train_test=split_train_test, DBG=DBG)
@@ -54,9 +59,19 @@ class Preperator:
         else:
             return df_all
 
+    def pack_data(self, meta_data: bool, split_ratio: float, all_data, train_data, test_data,
+                  cat_vars: List[str], cont_vars: List[str]):
 
+        if not meta_data:
+            cat_vars = None
+            cont_vars = None
 
-    def prepare_experiment(self, stock, prep_id: int = 1, all_data=True, proc_flow_id=5, split_train_test=False, DBG=True):
+        return DataContainer(meta_data=meta_data, split_ratio=split_ratio, all_data=all_data,
+                             train_data=train_data, test_data=test_data,
+                             cat_vars=cat_vars, cont_vars=cont_vars)
+
+    def prepare_experiment(self, stock, prep_id: int = 1, all_data=True, proc_flow_id=4,
+                           split_train_test=True, meta_data: bool = True, DBG=True) -> DataContainer:
         """
 
         ID | Steps
@@ -74,6 +89,7 @@ class Preperator:
         # dataloder.
         n = self.n
         pf = self.pf
+        y = "Close"
 
         if prep_id == 1:
             if DBG: print("Loading Data for stock: " + stock.name)
@@ -81,19 +97,30 @@ class Preperator:
 
             if DBG: print("Create a ProcFlow")
 
-
             if DBG: print("Applying pre-processor: ", proc_flow_id, "on: " + stock.name)
-            df_all = pf.proc_switch(data=df_all, stock=stock, y_col="Close", nr_n=5, proc_id=proc_flow_id)
+            # df_all = pf.proc_switch(data=df_all, stock=stock, y_col=y, nr_n=5, proc_id=proc_flow_id)
+
+            #if meta_data:
+            df_all, cat_vars, cont_vars = pf.proc_switch(data=df_all, stock=stock, y_col=y, nr_n=5,
+                                                         proc_id=proc_flow_id, meta_data=True)
 
             if DBG: print("Remove all NaN values")
             df_all = df_all.fillna(0)
 
+            split_ratio = 0.80
+
             if split_train_test:
                 if DBG: print("Split df_all in train & test")
-                train_df, test_df = pf.split_data(df=df_all, split_ratio=0.80, vrb=DBG)
-                return train_df, test_df
-            else:
-                return df_all
+                train_df, test_df = pf.split_data(df=df_all, split_ratio=split_ratio, vrb=DBG)
+
+            if DBG: print("Packing all data into container format")
+            # Stuff all train, test, df_all, cat_vars, cont_vars in one single
+            # OBJECT with flags what's inside AND return just one single object
+            data_pack = self.pack_data(meta_data=meta_data, split_ratio=split_ratio, all_data=df_all,
+                                       train_data=train_df, test_data=test_df,
+                                       cat_vars=cat_vars, cont_vars=cont_vars)
+
+            return data_pack
 
 
         if prep_id == 2:
@@ -117,9 +144,4 @@ class Preperator:
                 return df_all
 
 
-        if prep_id == 3:
-            if DBG: print("Loading Data for stock: " + stock.name)
-            df_all = n.load_data(stock, TimeFrame.TimeFrame.DAILY, full=all_data)
 
-            # TODO
-            return df_all

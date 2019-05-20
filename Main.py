@@ -54,28 +54,21 @@ def main():
 
         if inspect:
             prep = Preperator()
-            DBG = False
+            DBG = True
             all_data = True
-            split = True
             prep_id = 1  # Range: {1,2}
             proc = 4  # Range: {1,2,3,4,5}
 
-            stock = Ticker.Ticker.GOOGL
+            stock = Ticker.Ticker.AAPL
 
+            data_pack = prep.prepare_experiment(stock=stock, prep_id=prep_id, all_data=all_data,
+                                                proc_flow_id=proc)
 
-            train_df, test_df = prep.prepare_experiment(stock=stock, prep_id=prep_id, all_data=all_data,
-                                                        proc_flow_id=proc, split_train_test=split, DBG=DBG)
+            df_all = data_pack.all_data
+            df_test = data_pack.test_data
+            df_train = data_pack.train_data
 
-            split = False
-            transfer_big_df = prep.prepare_mixed_learning_experiment (stock=stock, prep_id=prep_id, all_data=all_data,
-                                                                      proc_flow_id=proc, split_train_test=split, DBG=DBG)
-
-            print(transfer_big_df.info())
-
-
-        #  MinMax regularization has a bug that sets all percentage values to ZERO :-(
-            # if DBG: print("Applying MinMax regularization  " + stock.name)
-            # df_all = p.proc_min_max_normalize(df=df_all, max_scale=20, all_col=False, exclude_col=["Date"])
+            print(df_all.info().T)
 
 
         if load:
